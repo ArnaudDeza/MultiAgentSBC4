@@ -1,4 +1,4 @@
 ollama
-pydantic
+pydantic>=2.0.0
 matplotlib
 numpy 
