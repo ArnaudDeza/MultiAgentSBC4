@@ -1,0 +1,12 @@
+{"timestamp": "2025-06-07T21:04:45.322393", "type": "tournament_start", "models": ["phi4", "qwq"], "rounds": 1}
+{"timestamp": "2025-06-07T21:04:45.520711", "type": "round_start", "round": 1, "matches": [{"match_id": "R1M1", "model1": "phi4", "model2": "qwq"}]}
+{"timestamp": "2025-06-07T21:05:26.041802", "type": "move", "game_id": "R1M1", "player": "X", "move": {"row": 1, "col": 1}, "board": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:05:26.115894", "type": "move", "game_id": "R1M1", "player": "O", "move": {"row": 0, "col": 0}, "board": [["O", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:05:34.329069", "type": "move", "game_id": "R1M1", "player": "X", "move": {"row": 0, "col": 1}, "board": [["O", "X", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:05:34.342682", "type": "move", "game_id": "R1M1", "player": "O", "move": {"row": 0, "col": 2}, "board": [["O", "X", "O"], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:05:38.651948", "type": "move", "game_id": "R1M1", "player": "X", "move": {"row": 1, "col": 0}, "board": [["O", "X", "O"], ["X", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:05:38.664777", "type": "move", "game_id": "R1M1", "player": "O", "move": {"row": 1, "col": 2}, "board": [["O", "X", "O"], ["X", "X", "O"], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:05:43.590005", "type": "move", "game_id": "R1M1", "player": "X", "move": {"row": 2, "col": 0}, "board": [["O", "X", "O"], ["X", "X", "O"], ["X", " ", " "]]}
+{"timestamp": "2025-06-07T21:05:43.602043", "type": "move", "game_id": "R1M1", "player": "O", "move": {"row": 2, "col": 1}, "board": [["O", "X", "O"], ["X", "X", "O"], ["X", "O", " "]]}
+{"timestamp": "2025-06-07T21:05:49.874156", "type": "move", "game_id": "R1M1", "player": "X", "move": {"row": 2, "col": 2}, "board": [["O", "X", "O"], ["X", "X", "O"], ["X", "O", "X"]]}
+{"timestamp": "2025-06-07T21:05:49.878362", "type": "result", "game_id": "R1M1", "result": "draw", "winner": null, "final_board": [["O", "X", "O"], ["X", "X", "O"], ["X", "O", "X"]]}

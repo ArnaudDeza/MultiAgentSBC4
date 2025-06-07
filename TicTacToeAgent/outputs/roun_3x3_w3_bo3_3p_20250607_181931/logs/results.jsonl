@@ -1,0 +1,46 @@
+{"type": "tournament_start", "timestamp": "2025-06-07T18:19:31.388573", "models": ["qwq:latest", "phi4:latest", "llama3.2:1b"], "total_rounds": 2}
+{"type": "game_result", "timestamp": "2025-06-07T18:19:33.510353", "game_id": "RR1G1", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:23.106751", "game_id": "RR1G2", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:23.118309", "game_id": "RR1G3", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:27.026223", "game_id": "RR1G4", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:27.037445", "game_id": "RR1G5", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:31.303043", "game_id": "RR1G6", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:31.314957", "game_id": "RR1G7", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:35.221720", "game_id": "RR1G8", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:35.233320", "game_id": "RR1G9", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:39.102229", "game_id": "RR1G10", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:39.113314", "game_id": "RR1G11", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:42.998903", "game_id": "RR1G12", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:43.010972", "game_id": "RR1G13", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:46.876769", "game_id": "RR1G14", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:46.888238", "game_id": "RR1G15", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:50.737329", "game_id": "RR1G16", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:50.749582", "game_id": "RR1G17", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:54.682448", "game_id": "RR1G18", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:54.693907", "game_id": "RR1G19", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:58.581960", "game_id": "RR1G20", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:20:58.593763", "game_id": "RR1G21", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:02.444867", "game_id": "RR1G22", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:02.456998", "game_id": "RR1G23", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:06.315836", "game_id": "RR1G24", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:06.326647", "game_id": "RR1G25", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:10.170696", "game_id": "RR1G26", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:10.182305", "game_id": "RR1G27", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:14.047732", "game_id": "RR1G28", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:14.059691", "game_id": "RR1G29", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:17.907952", "game_id": "RR1G30", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:17.918979", "game_id": "RR1G31", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:21.806998", "game_id": "RR1G32", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:21.819535", "game_id": "RR1G33", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:25.671852", "game_id": "RR1G34", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:25.684285", "game_id": "RR1G35", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:29.616186", "game_id": "RR1G36", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:29.627920", "game_id": "RR1G37", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:33.460609", "game_id": "RR1G38", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:33.472286", "game_id": "RR1G39", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:37.326980", "game_id": "RR1G40", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:37.338750", "game_id": "RR1G41", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:41.209825", "game_id": "RR1G42", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:41.221386", "game_id": "RR1G43", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:45.089091", "game_id": "RR1G44", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:21:45.102054", "game_id": "RR1G45", "result": "draw", "winner": null, "final_state": [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]}

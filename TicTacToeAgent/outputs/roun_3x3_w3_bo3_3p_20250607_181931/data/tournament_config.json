@@ -1,0 +1,43 @@
+{
+  "tournament": {
+    "format": "round_robin",
+    "best_of": 3,
+    "shuffle_players": true,
+    "seed": 42,
+    "max_rounds": 10
+  },
+  "game": {
+    "board_size": 3,
+    "win_length": 3,
+    "num_players": 2,
+    "max_moves": 50
+  },
+  "models": [
+    "phi4:latest",
+    "qwq:latest",
+    "llama3.2:1b"
+  ],
+  "cli_args": {
+    "models": [
+      "phi4:latest",
+      "qwq:latest",
+      "llama3.2:1b"
+    ],
+    "temp": 0.7,
+    "seed": 42,
+    "format": "round_robin",
+    "best_of": 3,
+    "max_rounds": 10,
+    "shuffle": true,
+    "board_size": 3,
+    "win_length": 3,
+    "max_moves": 50,
+    "output_dir": "outputs",
+    "session_name": null,
+    "list_models": false,
+    "no_viz": false,
+    "quick": false
+  },
+  "timestamp": "20250607_181931",
+  "session_id": "roun_3x3_w3_bo3_3p_20250607_181931"
+}

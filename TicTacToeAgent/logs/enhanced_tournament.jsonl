@@ -1,0 +1,35 @@
+{"timestamp": "2025-06-07T21:37:12.939567", "type": "tournament_start", "models": ["mistral-small:latest", "mistral:latest", "llama3.2:1b", "phi4:latest"], "rounds": 2}
+{"timestamp": "2025-06-07T21:37:17.804600", "type": "move", "game_id": "S1M1G1", "player": "X", "move": {"row": 1, "col": 1}, "board": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:37:26.223257", "type": "move", "game_id": "S1M1G1", "player": "O", "move": {"row": 0, "col": 1}, "board": [[" ", "O", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:37:33.537589", "type": "move", "game_id": "S1M1G1", "player": "X", "move": {"row": 0, "col": 0}, "board": [["X", "O", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:37:33.674097", "type": "move", "game_id": "S1M1G1", "player": "O", "move": {"row": 0, "col": 2}, "board": [["X", "O", "O"], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:37:40.317356", "type": "move", "game_id": "S1M1G1", "player": "X", "move": {"row": 1, "col": 2}, "board": [["X", "O", "O"], [" ", "X", "X"], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:37:40.424735", "type": "move", "game_id": "S1M1G1", "player": "O", "move": {"row": 1, "col": 0}, "board": [["X", "O", "O"], ["O", "X", "X"], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:37:46.672007", "type": "move", "game_id": "S1M1G1", "player": "X", "move": {"row": 2, "col": 2}, "board": [["X", "O", "O"], ["O", "X", "X"], [" ", " ", "X"]]}
+{"timestamp": "2025-06-07T21:37:46.716117", "type": "result", "game_id": "S1M1G1", "result": "win", "winner": "phi4:latest", "final_board": [["X", "O", "O"], ["O", "X", "X"], [" ", " ", "X"]]}
+{"timestamp": "2025-06-07T21:38:11.794629", "type": "move", "game_id": "S1M2G1", "player": "X", "move": {"row": 1, "col": 1}, "board": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:12.085384", "type": "move", "game_id": "S1M2G1", "player": "O", "move": {"row": 0, "col": 0}, "board": [["O", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:12.584189", "type": "move", "game_id": "S1M2G1", "player": "X", "move": {"row": 0, "col": 2}, "board": [["O", " ", "X"], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:12.731899", "type": "move", "game_id": "S1M2G1", "player": "O", "move": {"row": 2, "col": 1}, "board": [["O", " ", "X"], [" ", "X", " "], [" ", "O", " "]]}
+{"timestamp": "2025-06-07T21:38:13.218860", "type": "move", "game_id": "S1M2G1", "player": "X", "move": {"row": 0, "col": 1}, "board": [["O", "X", "X"], [" ", "X", " "], [" ", "O", " "]]}
+{"timestamp": "2025-06-07T21:38:13.361061", "type": "move", "game_id": "S1M2G1", "player": "O", "move": {"row": 1, "col": 0}, "board": [["O", "X", "X"], ["O", "X", " "], [" ", "O", " "]]}
+{"timestamp": "2025-06-07T21:38:13.874019", "type": "move", "game_id": "S1M2G1", "player": "X", "move": {"row": 1, "col": 2}, "board": [["O", "X", "X"], ["O", "X", "X"], [" ", "O", " "]]}
+{"timestamp": "2025-06-07T21:38:14.017810", "type": "move", "game_id": "S1M2G1", "player": "O", "move": {"row": 2, "col": 0}, "board": [["O", "X", "X"], ["O", "X", "X"], ["O", "O", " "]]}
+{"timestamp": "2025-06-07T21:38:14.018318", "type": "result", "game_id": "S1M2G1", "result": "win", "winner": "mistral:latest", "final_board": [["O", "X", "X"], ["O", "X", "X"], ["O", "O", " "]]}
+{"timestamp": "2025-06-07T21:38:14.169617", "type": "move", "game_id": "S2M1G1", "player": "X", "move": {"row": 0, "col": 1}, "board": [[" ", "X", " "], [" ", " ", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:20.035480", "type": "move", "game_id": "S2M1G1", "player": "O", "move": {"row": 1, "col": 1}, "board": [[" ", "X", " "], [" ", "O", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:20.183360", "type": "move", "game_id": "S2M1G1", "player": "X", "move": {"row": 0, "col": 2}, "board": [[" ", "X", "X"], [" ", "O", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:27.103067", "type": "move", "game_id": "S2M1G1", "player": "O", "move": {"row": 0, "col": 0}, "board": [["O", "X", "X"], [" ", "O", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:27.527327", "type": "move", "game_id": "S2M1G1", "player": "X", "move": {"row": 2, "col": 1}, "board": [["O", "X", "X"], [" ", "O", " "], [" ", "X", " "]]}
+{"timestamp": "2025-06-07T21:38:34.968304", "type": "move", "game_id": "S2M1G1", "player": "O", "move": {"row": 1, "col": 0}, "board": [["O", "X", "X"], ["O", "O", " "], [" ", "X", " "]]}
+{"timestamp": "2025-06-07T21:38:35.111027", "type": "move", "game_id": "S2M1G1", "player": "X", "move": {"row": 2, "col": 0}, "board": [["O", "X", "X"], ["O", "O", " "], ["X", "X", " "]]}
+{"timestamp": "2025-06-07T21:38:40.306411", "type": "move", "game_id": "S2M1G1", "player": "O", "move": {"row": 1, "col": 2}, "board": [["O", "X", "X"], ["O", "O", "O"], ["X", "X", " "]]}
+{"timestamp": "2025-06-07T21:38:40.307496", "type": "result", "game_id": "S2M1G1", "result": "win", "winner": "phi4:latest", "final_board": [["O", "X", "X"], ["O", "O", "O"], ["X", "X", " "]]}
+{"timestamp": "2025-06-07T21:38:40.929651", "type": "move", "game_id": "S2M2G1", "player": "X", "move": {"row": 1, "col": 1}, "board": [[" ", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:41.089627", "type": "move", "game_id": "S2M2G1", "player": "O", "move": {"row": 0, "col": 1}, "board": [[" ", "O", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:41.579393", "type": "move", "game_id": "S2M2G1", "player": "X", "move": {"row": 0, "col": 0}, "board": [["X", "O", " "], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:41.674082", "type": "move", "game_id": "S2M2G1", "player": "O", "move": {"row": 0, "col": 2}, "board": [["X", "O", "O"], [" ", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:42.065416", "type": "move", "game_id": "S2M2G1", "player": "X", "move": {"row": 1, "col": 0}, "board": [["X", "O", "O"], ["X", "X", " "], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:42.159852", "type": "move", "game_id": "S2M2G1", "player": "O", "move": {"row": 1, "col": 2}, "board": [["X", "O", "O"], ["X", "X", "O"], [" ", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:42.641526", "type": "move", "game_id": "S2M2G1", "player": "X", "move": {"row": 2, "col": 0}, "board": [["X", "O", "O"], ["X", "X", "O"], ["X", " ", " "]]}
+{"timestamp": "2025-06-07T21:38:42.642039", "type": "result", "game_id": "S2M2G1", "result": "win", "winner": "mistral-small:latest", "final_board": [["X", "O", "O"], ["X", "X", "O"], ["X", " ", " "]]}
