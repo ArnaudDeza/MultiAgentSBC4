@@ -1,0 +1,14 @@
+{"type": "tournament_start", "timestamp": "2025-06-07T18:25:35.503526", "models": ["mistral:latest", "phi4:latest", "llama3.2:1b"], "total_rounds": 2}
+{"type": "game_result", "timestamp": "2025-06-07T18:26:13.654870", "game_id": "RR1G1", "result": "win", "winner": "phi4:latest", "final_state": [["O", "X", "X"], ["O", "O", "O"], ["X", "X", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:26:47.998480", "game_id": "RR1G2", "result": "win", "winner": "phi4:latest", "final_state": [["O", "X", "X"], ["O", "X", "O"], ["X", "O", "X"]]}
+{"type": "match_result", "timestamp": "2025-06-07T18:26:47.999390", "match_id": "RR1", "players": ["mistral:latest", "phi4:latest"], "winner": "phi4:latest", "score": [0, 2], "games": 2, "format": "best_of_3"}
+{"type": "game_result", "timestamp": "2025-06-07T18:26:57.272318", "game_id": "RR2G1", "result": "draw", "winner": null, "final_state": [["O", "X", "O"], ["X", "O", "X"], ["X", "O", "X"]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:26:57.993399", "game_id": "RR2G2", "result": "win", "winner": "mistral:latest", "final_state": [["O", "X", "X"], ["O", "X", " "], ["O", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:26:59.102589", "game_id": "RR2G3", "result": "draw", "winner": null, "final_state": [["O", "X", "O"], ["X", "O", "X"], ["X", "O", "X"]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:26:59.818102", "game_id": "RR2G4", "result": "win", "winner": "mistral:latest", "final_state": [["O", "X", "X"], ["O", "X", " "], ["O", " ", " "]]}
+{"type": "match_result", "timestamp": "2025-06-07T18:26:59.818395", "match_id": "RR2", "players": ["mistral:latest", "llama3.2:1b"], "winner": "mistral:latest", "score": [2, 0], "games": 4, "format": "best_of_3"}
+{"type": "game_result", "timestamp": "2025-06-07T18:27:15.087739", "game_id": "RR3G1", "result": "win", "winner": "phi4:latest", "final_state": [["O", "O", " "], ["X", "X", "X"], [" ", " ", " "]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:27:39.129768", "game_id": "RR3G2", "result": "win", "winner": "llama3.2:1b", "final_state": [["X", "X", "O"], ["X", "O", "X"], ["X", "O", "O"]]}
+{"type": "game_result", "timestamp": "2025-06-07T18:28:03.964133", "game_id": "RR3G3", "result": "win", "winner": "phi4:latest", "final_state": [["X", "O", "O"], ["O", "X", "X"], [" ", " ", "X"]]}
+{"type": "match_result", "timestamp": "2025-06-07T18:28:03.965087", "match_id": "RR3", "players": ["phi4:latest", "llama3.2:1b"], "winner": "phi4:latest", "score": [2, 1], "games": 3, "format": "best_of_3"}
+{"type": "tournament_complete", "timestamp": "2025-06-07T18:28:03.967053", "champion": "phi4:latest", "total_matches": 3, "total_games": 9, "summary_file": "outputs/roun_3x3_w3_bo3_3p_20250607_182535/data/tournament_summary.json"}

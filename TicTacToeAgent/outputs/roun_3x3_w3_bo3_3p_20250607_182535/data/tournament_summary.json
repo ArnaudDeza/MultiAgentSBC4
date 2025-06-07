@@ -1,0 +1,111 @@
+{
+  "format": "round_robin",
+  "champion": "phi4:latest",
+  "total_rounds": 3,
+  "total_matches": 3,
+  "total_games": 9,
+  "participants": [
+    "mistral:latest",
+    "phi4:latest",
+    "llama3.2:1b"
+  ],
+  "standings": {
+    "mistral:latest": {
+      "wins": 1,
+      "losses": 1,
+      "games_won": 2,
+      "games_lost": 2,
+      "matches_played": 2,
+      "points": 4,
+      "opponents": [
+        "phi4:latest",
+        "llama3.2:1b"
+      ]
+    },
+    "phi4:latest": {
+      "wins": 2,
+      "losses": 0,
+      "games_won": 4,
+      "games_lost": 1,
+      "matches_played": 2,
+      "points": 6,
+      "opponents": [
+        "mistral:latest",
+        "llama3.2:1b"
+      ]
+    },
+    "llama3.2:1b": {
+      "wins": 0,
+      "losses": 2,
+      "games_won": 1,
+      "games_lost": 4,
+      "matches_played": 2,
+      "points": 2,
+      "opponents": [
+        "mistral:latest",
+        "phi4:latest"
+      ]
+    }
+  },
+  "matches": [
+    {
+      "match_id": "RR1",
+      "players": [
+        "mistral:latest",
+        "phi4:latest"
+      ],
+      "winner": "phi4:latest",
+      "score": [
+        0,
+        2
+      ],
+      "games": 2
+    },
+    {
+      "match_id": "RR2",
+      "players": [
+        "mistral:latest",
+        "llama3.2:1b"
+      ],
+      "winner": "mistral:latest",
+      "score": [
+        2,
+        0
+      ],
+      "games": 4
+    },
+    {
+      "match_id": "RR3",
+      "players": [
+        "phi4:latest",
+        "llama3.2:1b"
+      ],
+      "winner": "phi4:latest",
+      "score": [
+        2,
+        1
+      ],
+      "games": 3
+    }
+  ],
+  "config": {
+    "format": "round_robin",
+    "best_of": 3,
+    "game_config": {
+      "board_size": 3,
+      "win_length": 3,
+      "num_players": 2,
+      "max_moves": 50
+    }
+  },
+  "session_id": "roun_3x3_w3_bo3_3p_20250607_182535",
+  "timestamp": "20250607_182535",
+  "completion_time": "2025-06-07T18:28:03.965403",
+  "session_directory": "outputs/roun_3x3_w3_bo3_3p_20250607_182535",
+  "files": {
+    "config": "outputs/roun_3x3_w3_bo3_3p_20250607_182535/data/tournament_config.json",
+    "moves_log": "outputs/roun_3x3_w3_bo3_3p_20250607_182535/logs/moves.jsonl",
+    "results_log": "outputs/roun_3x3_w3_bo3_3p_20250607_182535/logs/results.jsonl",
+    "plots_directory": "outputs/roun_3x3_w3_bo3_3p_20250607_182535/plots"
+  }
+}

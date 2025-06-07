@@ -1,0 +1,19 @@
+{
+  "session_id": "roun_3x3_w3_bo3_3p_20250607_182535",
+  "start_time": "2025-06-07T18:25:35.501042",
+  "end_time": "2025-06-07T18:28:08.611384",
+  "total_duration": "0:02:33.110342",
+  "files_created": [
+    "data/tournament_config.json",
+    "data/tournament_summary.json",
+    "data/session_metadata.json",
+    "logs/results.jsonl",
+    "logs/moves.jsonl",
+    "plots/standings_heatmap.png",
+    "plots/win_rate_trends.png",
+    "plots/performance_metrics.png",
+    "plots/enhanced_bracket.png",
+    "plots/match_progression.png"
+  ],
+  "status": "completed"
+}
