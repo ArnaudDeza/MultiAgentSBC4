@@ -18,6 +18,7 @@ from config import (
 from utils import JsonLogger
 from agents import DebateAgent, JudgeAgent
 from topics import get_topic, list_topics, list_topic_keys, DEBATE_TOPICS
+from audio_generator import DebateAudioGenerator
 
 
 def load_jsonl(file_path: str) -> List[Dict[str, Any]]:
@@ -96,7 +97,8 @@ def run_debate(
     model: str,
     temp: float,
     seed: int,
-    output: str = None
+    output: str = None,
+    generate_audio: bool = False
 ) -> None:
     """
     Run a multi-agent debate on the given topic.
@@ -109,6 +111,7 @@ def run_debate(
         temp: Temperature for generation
         seed: Random seed
         output: Output file path (if None, creates timestamped folder)
+        generate_audio: Whether to generate audio transcript using TTS
     """
     # Record start time
     start_time = time.time()
@@ -284,6 +287,29 @@ def run_debate(
     print(f"  - Transcript: {os.path.basename(transcript_path)}")
     print(f"  - Metadata: {os.path.basename(metadata_path)}")
     print(f"  - Duration: {metadata['timing']['duration_human']}")
+    
+    # Generate audio if requested
+    if generate_audio:
+        print("\n🔊 Generating audio transcript...")
+        try:
+            audio_dir = os.path.join(results_folder, "audio")
+            audio_generator = DebateAudioGenerator()
+            main_audio_file = audio_generator.generate_audio_from_transcript(
+                transcript_path, audio_dir, metadata
+            )
+            print(f"✅ Audio generated successfully!")
+            print(f"  - Audio files: {os.path.basename(audio_dir)}/")
+            metadata['files']['audio_dir'] = os.path.basename(audio_dir)
+            
+            # Update metadata with audio info
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, indent=2, ensure_ascii=False)
+                
+        except ImportError:
+            print("❌ pyttsx3 not available. Install with: pip install pyttsx3")
+        except Exception as e:
+            print(f"❌ Audio generation failed: {e}")
+            print("   Debate results are still available in text format.")
 
 
 def resolve_topic(topic_input: str) -> str:
@@ -335,6 +361,12 @@ def main() -> None:
         "--list-keys",
         action="store_true", 
         help="List just the topic keys and exit"
+    )
+    
+    parser.add_argument(
+        "--audio",
+        action="store_true",
+        help="Generate audio transcript using text-to-speech"
     )
     parser.add_argument(
         "--num_agents",
@@ -394,7 +426,8 @@ def main() -> None:
         model=args.model,
         temp=args.temp,
         seed=args.seed,
-        output=args.output
+        output=args.output,
+        generate_audio=args.audio
     )
 
 

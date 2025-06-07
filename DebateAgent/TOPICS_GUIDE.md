@@ -98,7 +98,7 @@ python orchestrator.py --topic pineapple_pizza --num_agents 2 --rounds 1
 ### Serious Policy Debate
 ```bash
 # Extended debate on important policy
-python orchestrator.py --topic universal_healthcare --num_agents 4 --rounds 5
+python orchestrator.py --topic universal_healthcare --num_agents 3 --rounds 5
 ```
 
 ### Custom Topic Exploration

@@ -59,6 +59,21 @@ python orchestrator.py \
   --seed 123
 ```
 
+### Audio Generation
+
+Generate audio transcripts using text-to-speech:
+
+```bash
+# Generate debate with audio
+python orchestrator.py --topic pineapple_pizza --audio
+
+# Convert existing debates to audio
+python convert_to_audio.py
+
+# Test audio system
+python demo_audio.py
+```
+
 ### Available Options
 
 - `--topic`: Debate topic key or custom question (default: ai_education)
@@ -68,6 +83,7 @@ python orchestrator.py \
 - `--temp`: Generation temperature 0.0-1.0 (default: 0.7)
 - `--seed`: Random seed for reproducibility (default: 42)
 - `--output`: Output location (default: auto-generated timestamped folder)
+- `--audio`: Generate audio transcript using text-to-speech
 - `--list-topics`: Show all available predefined topics
 - `--list-keys`: Show just the topic keys
 

@@ -21,6 +21,10 @@ class PlayerAgent(BaseModel):
         super().__init__(**data)
         if self.name is None:
             self.name = self.model
+        
+        # Ensure name clearly identifies the model for logging
+        if self.model not in self.name and self.name != self.model:
+            self.name = f"{self.model}({self.name})"
     
     def make_move(self, round_num: int = 1, opponent_history: List[Move] = None, 
                   own_history: List[Move] = None) -> Move:
@@ -47,50 +51,149 @@ class PlayerAgent(BaseModel):
     
     def _create_move_prompt(self, round_num: int, opponent_history: Optional[List[Move]], 
                            own_history: Optional[List[Move]]) -> str:
-        """Create a context-aware prompt for the LLM.
+        """Create a comprehensive, context-aware prompt for the LLM.
         
         Args:
-            round_num: Current round number
-            opponent_history: List of opponent's previous moves
-            own_history: List of own previous moves
+            round_num: Current round number in this match
+            opponent_history: List of opponent's previous moves in this match
+            own_history: List of own previous moves in this match
             
         Returns:
-            Formatted prompt string
+            Detailed formatted prompt string with complete match context
         """
         prompt_parts = [
-            f"You are playing Rock Paper Scissors as '{self.name}'.",
-            f"This is round {round_num}.",
+            "=" * 60,
+            "ROCK PAPER SCISSORS TOURNAMENT - MATCH IN PROGRESS",
+            "=" * 60,
             "",
-            "Rules:",
-            "- Rock beats Scissors",
-            "- Paper beats Rock", 
-            "- Scissors beats Paper",
-            "- Same moves result in a draw",
+            f"🤖 You are: {self.name}",
+            f"🎯 Current Round: {round_num}",
+            "",
+            "📋 GAME RULES:",
+            "• Rock beats Scissors (crushes)",
+            "• Paper beats Rock (covers)", 
+            "• Scissors beats Paper (cuts)",
+            "• Identical moves = Draw",
+            "",
+            "🏆 MATCH FORMAT:",
+            "• This is a multi-round match between two LLM agents",
+            "• Each round, both players simultaneously choose: rock, paper, or scissors",
+            "• Winner is determined by best performance across all rounds",
+            "• You can see the complete playing history below",
             ""
         ]
         
-        # Add history context if available
-        if opponent_history and own_history and len(opponent_history) > 0:
+        # Add detailed match history if available
+        if opponent_history is not None and own_history is not None:
+            if len(opponent_history) > 0:
+                prompt_parts.extend([
+                    "📊 COMPLETE MATCH HISTORY:",
+                    "-" * 40,
+                ])
+                
+                # Create round-by-round breakdown
+                for i in range(len(opponent_history)):
+                    your_move = own_history[i].value
+                    opp_move = opponent_history[i].value
+                    
+                    # Determine round result
+                    if your_move == opp_move:
+                        result = "DRAW"
+                        emoji = "🤝"
+                    elif ((your_move == "rock" and opp_move == "scissors") or
+                          (your_move == "paper" and opp_move == "rock") or
+                          (your_move == "scissors" and opp_move == "paper")):
+                        result = "YOU WON"
+                        emoji = "✅"
+                    else:
+                        result = "YOU LOST"
+                        emoji = "❌"
+                    
+                    prompt_parts.append(f"Round {i+1:2d}: You={your_move:8s} | Opponent={opp_move:8s} | {emoji} {result}")
+                
+                prompt_parts.extend(["", "📈 PATTERN ANALYSIS:"])
+                
+                # Your move frequency
+                your_rock = own_history.count(Move.ROCK)
+                your_paper = own_history.count(Move.PAPER)
+                your_scissors = own_history.count(Move.SCISSORS)
+                total_rounds = len(own_history)
+                
+                prompt_parts.extend([
+                    f"Your move frequency: Rock={your_rock}/{total_rounds} Paper={your_paper}/{total_rounds} Scissors={your_scissors}/{total_rounds}",
+                ])
+                
+                # Opponent move frequency  
+                opp_rock = opponent_history.count(Move.ROCK)
+                opp_paper = opponent_history.count(Move.PAPER)
+                opp_scissors = opponent_history.count(Move.SCISSORS)
+                
+                prompt_parts.extend([
+                    f"Opponent frequency:   Rock={opp_rock}/{total_rounds} Paper={opp_paper}/{total_rounds} Scissors={opp_scissors}/{total_rounds}",
+                    ""
+                ])
+                
+                # Recent patterns
+                if len(opponent_history) >= 3:
+                    recent_yours = " → ".join([move.value for move in own_history[-3:]])
+                    recent_opps = " → ".join([move.value for move in opponent_history[-3:]])
+                    prompt_parts.extend([
+                        "🔍 RECENT PATTERNS (last 3 rounds):",
+                        f"Your recent moves:     {recent_yours}",
+                        f"Opponent recent moves: {recent_opps}",
+                        ""
+                    ])
+                
+                # Calculate current score
+                wins = 0
+                losses = 0
+                draws = 0
+                for i in range(len(opponent_history)):
+                    your_move = own_history[i]
+                    opp_move = opponent_history[i]
+                    if your_move == opp_move:
+                        draws += 1
+                    elif ((your_move == Move.ROCK and opp_move == Move.SCISSORS) or
+                          (your_move == Move.PAPER and opp_move == Move.ROCK) or
+                          (your_move == Move.SCISSORS and opp_move == Move.PAPER)):
+                        wins += 1
+                    else:
+                        losses += 1
+                
+                prompt_parts.extend([
+                    f"📊 CURRENT MATCH SCORE:",
+                    f"Wins: {wins} | Losses: {losses} | Draws: {draws}",
+                    f"Win Rate: {wins/total_rounds:.1%}" if total_rounds > 0 else "Win Rate: 0%",
+                    ""
+                ])
+            else:
+                prompt_parts.extend([
+                    "📊 MATCH STATUS:",
+                    "• This is the first round of the match",
+                    "• No previous history available",
+                    "• Both players start fresh",
+                    ""
+                ])
+        else:
             prompt_parts.extend([
-                "Game history:",
-                f"Your previous moves: {[move.value for move in own_history]}",
-                f"Opponent's previous moves: {[move.value for move in opponent_history]}",
+                "📊 MATCH STATUS:",
+                "• Match information not available",
+                "• Playing as standalone round",
                 ""
             ])
-            
-            # Add some strategic analysis
-            if len(opponent_history) >= 2:
-                last_moves = [move.value for move in opponent_history[-3:]]
-                prompt_parts.append(f"Opponent's recent pattern: {' -> '.join(last_moves)}")
-                prompt_parts.append("")
         
         prompt_parts.extend([
-            "Choose your move for this round. Respond with ONLY one of these words:",
-            "- rock",
-            "- paper", 
-            "- scissors",
+            "🎯 YOUR TASK FOR THIS ROUND:",
+            "Analyze the complete match history above and choose your move strategically.",
+            "Consider patterns, frequencies, and opponent behavior to maximize your chances.",
             "",
-            "Your move:"
+            "⚡ RESPOND WITH EXACTLY ONE WORD:",
+            "• rock",
+            "• paper", 
+            "• scissors",
+            "",
+            "💭 Think strategically based on the history, then choose:",
+            ""
         ])
         
         return "\n".join(prompt_parts)
