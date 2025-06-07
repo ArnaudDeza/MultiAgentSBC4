@@ -1,345 +1,264 @@
-# Tic-Tac-Toe Showdown
+# Enhanced Multi-Agent Game Tournament System
 
-A sophisticated LLM tournament system where AI models compete in single-elimination Tic-Tac-Toe battles, complete with detailed logging, statistical analysis, and beautiful visualizations.
+A powerful, flexible tournament system for LLM agents with configurable games, multiple tournament formats, and comprehensive logging.
 
-## 🎮 Overview
-
-**Tic-Tac-Toe Showdown** is a competitive multi-agent system that:
-
-- **Hosts tournaments** between different Ollama LLM models
-- **Logs every move** and game result in structured JSONL format
-- **Generates visualizations** including move frequency heatmaps and tournament brackets
-- **Provides statistical analysis** of model performance and strategies
-- **Features robust error handling** for LLM parsing and game state management
-
-### Key Features
-
-🤖 **Multi-Model Competition**: Pit different LLMs against each other  
-📊 **Rich Analytics**: Comprehensive logging and statistical analysis  
-🎨 **Beautiful Visualizations**: Heatmaps, brackets, and pattern analysis  
-⚡ **Robust Architecture**: Error handling and fallback mechanisms  
-🔧 **Highly Configurable**: Customizable tournaments and parameters  
-
-## 🚀 Installation
+## 🚀 Quick Start
 
 ### Prerequisites
 
-1. **Ollama** must be installed and running
-2. **Python 3.8+** is required
-
-### Quick Start
-
-1. **Install dependencies**:
+1. **Install Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-2. **Ensure Ollama models are available**:
+2. **Install Ollama** (if not already installed)
 ```bash
-ollama pull phi4
-ollama pull qwq
-ollama pull llama3.3
+# On macOS/Linux
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Pull some models for testing
+ollama pull phi4:latest
+ollama pull qwq:latest
+ollama pull llama3.2:1b
 ```
 
-3. **Run a basic tournament**:
+3. **Verify Setup**
 ```bash
-python main.py
+ollama list  # Should show your installed models
 ```
 
-## 🎯 Usage
+### Basic Usage
 
-### Basic Tournament
 ```bash
-# Default tournament with phi4 vs qwq
-python main.py
+# Simple tournament with two models
+python main_enhanced.py --models phi4:latest qwq:latest
+
+# Round-robin tournament with best-of-3 matches
+python main_enhanced.py --models phi4:latest qwq:latest llama3.2:1b --format round_robin --best-of 3
+
+# Large board strategic play (5x5 board, need 4 in a row to win)
+python main_enhanced.py --models phi4:latest qwq:latest --board-size 5 --win-length 4
+
+# Swiss tournament with multiple rounds
+python main_enhanced.py --models phi4:latest qwq:latest llama3.2:1b phi4:mini --format swiss --max-rounds 3
 ```
 
-### Custom Model Selection
+## 🎮 Key Features
+
+### ✅ Multiple Tournament Formats
+- **Single Elimination**: Traditional knockout tournament
+- **Round Robin**: Every player plays every other player  
+- **Swiss System**: Balanced pairing based on performance
+- **Best-of-X Matches**: Configurable match lengths (1, 3, 5, 7+ games)
+
+### ✅ Flexible Game Configuration
+- **Board Sizes**: 3x3, 4x4, 5x5, up to 10x10
+- **Win Conditions**: 3-in-a-row, 4-in-a-row, or custom length
+- **Multiple Games**: Tic-Tac-Toe, Connect-Four (easily extensible)
+
+### ✅ Enhanced Logging & File Management
+- **Automatic File Organization**: Timestamped session directories
+- **Complete Parameter Storage**: All settings saved to JSON
+- **Structured Output**: Separate folders for logs, plots, and data
+- **Session Management**: Tools to analyze and compare tournaments
+
+### ✅ Rich Visualizations
+- **Tournament Brackets**: Visual progression tracking
+- **Performance Heatmaps**: Player statistics and comparisons
+- **Win Rate Trends**: Performance over time analysis
+- **Statistical Insights**: Comprehensive tournament analytics
+
+## 📁 Output Structure
+
+Each tournament automatically creates an organized output directory:
+
+```
+outputs/
+├── tournament_sing_3x3_w3_4p_20241207_180512/
+│   ├── logs/
+│   │   ├── moves.jsonl              # Individual game moves
+│   │   └── results.jsonl            # Tournament events & results
+│   ├── plots/
+│   │   ├── tournament_bracket.png   # Visual tournament progression
+│   │   ├── performance_heatmap.png  # Player performance analysis
+│   │   └── win_rate_trends.png     # Performance trends
+│   ├── data/
+│   │   ├── tournament_config.json   # Complete configuration
+│   │   ├── session_metadata.json   # Session timing & info
+│   │   └── tournament_summary.json # Final results & statistics
+│   └── session_summary.json        # Complete session overview
+```
+
+## 🔧 Advanced Usage
+
+### Custom Tournament Configuration
 ```bash
-# Specify which models compete
-python main.py --models phi4 qwq llama3.3 phi4-mini
-
-# Self-play tournament
-python main.py --models phi4 phi4
+# Complex tournament with all options
+python main_enhanced.py \
+  --models phi4:latest qwq:latest llama3.2:1b phi4:mini \
+  --format swiss \
+  --best-of 3 \
+  --board-size 4 \
+  --win-length 3 \
+  --temp 0.7 \
+  --seed 42 \
+  --max-rounds 5 \
+  --output-dir custom_tournament
 ```
 
-### Advanced Configuration
+### Session Management
 ```bash
-# Customize temperature and seed for reproducibility
-python main.py --models phi4 qwq --temp 0.8 --seed 123
+# List all tournament sessions
+python session_manager.py list
 
-# Quick mode with minimal output
-python main.py --quick
+# Analyze a specific session in detail
+python session_manager.py analyze outputs/tournament_20241207_180512
 
-# Skip visualizations (useful for headless environments)
-python main.py --no-viz
+# Compare multiple tournament sessions
+python session_manager.py compare outputs/session1 outputs/session2
+
+# Export session data to JSON/CSV
+python session_manager.py export outputs/session1 --output results.json
+
+# Clean up old sessions (older than 30 days)
+python session_manager.py cleanup --days 30
 ```
 
-### Utility Commands
+### Quick Demo
 ```bash
-# List available Ollama models
-python main.py --list-models
-
-# Custom log file location
-python main.py --logfile experiments/my_tournament.jsonl
+# Run the demo to see all features
+python demo_enhanced.py
 ```
 
-## 📁 Project Structure
+## 📊 Command Line Options
 
-```
-tic_tac_toe_showdown/
-├── agents.py           # PlayerAgent with LLM integration
-├── game_engine.py      # Board logic and game referee
-├── tournament.py       # Tournament management and brackets
-├── viz.py             # Matplotlib visualizations
-├── main.py            # CLI entrypoint
-├── logger.py          # JSONL logging utilities
-├── ollama_utils.py    # Ollama API helpers
-├── requirements.txt   # Python dependencies
-├── README.md          # This documentation
-├── logs/              # Tournament logs (auto-created)
-│   └── tournament.jsonl
-└── plots/             # Generated visualizations (auto-created)
-    ├── move_heatmap.png
-    ├── tournament_bracket.png
-    └── move_patterns.png
-```
+### Required Arguments
+- `--models`: List of Ollama model names (e.g., `phi4:latest qwq:latest`)
 
-## 🏆 How It Works
+### Tournament Options
+- `--format`: Tournament format (`single_elimination`, `round_robin`, `swiss`)
+- `--best-of`: Games per match (1, 3, 5, 7, etc.)
+- `--max-rounds`: Maximum rounds for Swiss tournaments
 
-### Tournament Flow
+### Game Configuration
+- `--board-size`: Board size (3-10, default: 3)
+- `--win-length`: Length needed to win (default: 3)
 
-1. **Bracket Creation**: Models are arranged in a single-elimination bracket (padded to power of 2)
-2. **Match Execution**: Each match is a best-of-1 Tic-Tac-Toe game
-3. **Move Generation**: LLMs generate moves via natural language prompts
-4. **Validation**: Moves are parsed and validated with fallback mechanisms
-5. **Progression**: Winners advance to the next round until a champion emerges
+### LLM Settings
+- `--temp`: Temperature for LLM responses (0.0-2.0, default: 0.7)
+- `--seed`: Random seed for reproducibility
 
-### Game Mechanics
+### Output Options
+- `--output-dir`: Base directory for outputs (default: outputs)
+- `--session-name`: Custom session name (auto-generated if not provided)
+- `--no-viz`: Skip visualization generation
+- `--quick`: Minimal output for batch processing
 
-- **Standard Tic-Tac-Toe**: 3×3 grid, first to get three in a row wins
-- **Turn-based**: X goes first (randomly assigned per match)
-- **Move Format**: LLMs respond with JSON: `{"row": 0, "col": 1}`
-- **Error Handling**: Invalid moves trigger auto-correction to valid alternatives
-- **Draw Handling**: Random winner selection for draws (rare in Tic-Tac-Toe)
+## 🎯 Tournament Formats Explained
 
-### Logging Format
+### Single Elimination
+- **Best for**: Quick tournaments, many players
+- **Characteristics**: Players eliminated after one loss, fast results
+- **Use case**: Quick competitions with clear winners
 
-Every action is logged to JSONL with timestamps:
+### Round Robin
+- **Best for**: Comprehensive skill assessment, fewer players
+- **Characteristics**: Every player plays every other player
+- **Use case**: Determining true skill rankings
 
-```json
-{"timestamp": "2024-01-15T10:30:00.123456", "type": "tournament_start", "models": ["phi4", "qwq"], "rounds": 1}
-{"timestamp": "2024-01-15T10:30:15.789012", "type": "move", "game_id": "R1M1", "player": "X", "move": {"row": 1, "col": 1}, "board": [["X", " ", " "], [" ", "X", " "], [" ", " ", " "]]}
-{"timestamp": "2024-01-15T10:30:30.345678", "type": "result", "game_id": "R1M1", "result": "win", "winner": "X", "final_board": [...]}
-```
+### Swiss System
+- **Best for**: Balanced tournaments with many players
+- **Characteristics**: Players paired by similar performance
+- **Use case**: Large tournaments without elimination
 
-## 📊 Visualizations
+## 🎲 Game Configurations
 
-### Move Frequency Heatmap
-Shows which board positions are most popular across all games:
-- **Hot spots**: Frequently chosen positions (center, corners)
-- **Cold spots**: Rarely selected positions
-- **Strategic insights**: Reveals model preferences and patterns
+### Board Sizes & Strategy
+- **3x3**: Classic quick games (2-10 moves typically)
+- **4x4**: Extended gameplay with more strategy
+- **5x5+**: Deep strategic play requiring planning
 
-### Tournament Bracket
-Visual representation of the tournament progression:
-- **Participant flow**: Shows how models advance through rounds
-- **Match results**: Winner indicators and progression paths
-- **Final champion**: Clear identification of the tournament winner
+### Win Length Effects
+- **Win = Board Size**: Traditional rules (3-in-a-row on 3x3)
+- **Win < Board Size**: More strategic with multiple winning paths
+- **Large Boards**: Enable complex tactical play
 
-### Move Pattern Analysis
-Separate analysis for X and O players:
-- **Positional preferences**: Different strategies for first/second player
-- **Comparative analysis**: Side-by-side heatmaps
-- **Strategic differences**: How opening vs. responding moves differ
-
-## 🔧 Customization
-
-### Adding New Models
-
-1. **Install the model in Ollama**:
-```bash
-ollama pull your-new-model
-```
-
-2. **Add to tournament**:
-```bash
-python main.py --models phi4 qwq your-new-model
-```
-
-### Custom Agent Behavior
-
-Modify `agents.py` to customize how LLMs are prompted:
-
-```python
-# In PlayerAgent.get_move()
-prompt = f"""Custom prompt for {symbol} player:
-Current board: {board_str}
-Your strategic instruction here...
-"""
-```
-
-### Tournament Rules
-
-Adjust tournament mechanics in `tournament.py`:
-
-```python
-# Change bracket generation
-def create_custom_bracket(models):
-    # Your custom seeding logic
-    pass
-
-# Modify advancement rules
-def handle_draw(model1, model2):
-    # Your tiebreaker logic
-    pass
-```
-
-### Visualization Themes
-
-Customize visualizations in `viz.py`:
-
-```python
-# Change color schemes
-move_counts_plot = ax.imshow(move_counts, cmap='viridis')  # Different colormap
-
-# Modify styling
-ax.set_title('My Custom Tournament', fontsize=20, color='blue')
-```
-
-## 📈 Performance Analysis
-
-### Statistical Insights
-
-The system automatically generates:
-
-- **Win rates by model**: Overall performance metrics
-- **Games played**: Tournament participation tracking  
-- **Move preferences**: Strategic pattern analysis
-- **Position popularity**: Board location statistics
-
-### Analyzing Results
-
-```python
-import json
-
-# Load tournament log
-with open('logs/tournament.jsonl', 'r') as f:
-    records = [json.loads(line) for line in f]
-
-# Analyze move patterns
-moves = [r for r in records if r['type'] == 'move']
-center_moves = [m for m in moves if m['move']['row'] == 1 and m['move']['col'] == 1]
-print(f"Center moves: {len(center_moves)}/{len(moves)} ({len(center_moves)/len(moves):.1%})")
-
-# Model performance
-results = [r for r in records if r['type'] == 'result']
-winners = [r['winner'] for r in results if r['winner']]
-```
-
-## 🐛 Troubleshooting
+## 🔍 Troubleshooting
 
 ### Common Issues
 
-**Problem**: `ModuleNotFoundError: No module named 'ollama'`
-```bash
-# Solution: Install dependencies
-pip install -r requirements.txt
-```
+1. **"Model not found" errors**:
+   ```bash
+   ollama list  # Check available models
+   ollama pull model_name:latest  # Pull missing models
+   ```
 
-**Problem**: Models not responding or timing out
+2. **Import errors**:
+   ```bash
+   pip install -r requirements.txt  # Install dependencies
+   ```
+
+3. **Permission errors**:
+   ```bash
+   chmod +x session_manager.py  # Make scripts executable
+   ```
+
+4. **Visualization errors**:
+   - Ensure matplotlib is installed: `pip install matplotlib`
+   - Use `--no-viz` flag to skip visualizations if needed
+
+### Getting Help
 ```bash
-# Solution: Check Ollama is running
+# See all available options
+python main_enhanced.py --help
+
+# Session manager help
+python session_manager.py --help
+
+# Check model availability
 ollama list
-ollama serve  # If not running
 ```
 
-**Problem**: Invalid move parsing
-- **Built-in handling**: System automatically finds valid alternatives
-- **Logging**: Check logs for parsing details
-- **Adjustment**: Modify prompts in `agents.py` for clearer instructions
+## 📈 Performance Tips
 
-**Problem**: Visualization errors
-```bash
-# Solution: Install display dependencies
-pip install matplotlib
-# For headless environments:
-python main.py --no-viz
-```
+1. **Start Small**: Begin with 2-3 models and small boards
+2. **Use Swiss Format**: For many players, Swiss is most efficient
+3. **Best-of-3**: Good balance of accuracy and speed
+4. **Monitor Resources**: Large tournaments with many models can be intensive
 
-### Debug Mode
+## 🔧 Extensibility
 
-Enable detailed logging by modifying `main.py`:
+The system is designed for easy extension:
 
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
+- **Add New Games**: Implement the `IGame` interface
+- **Custom Tournament Formats**: Extend `TournamentEngine`
+- **Enhanced Metrics**: Add statistics to the logging system
+- **Visualization Customization**: Modify `enhanced_viz.py`
 
-## 🚀 Advanced Usage
+See `README_ENHANCED.md` for detailed technical documentation.
 
-### Batch Tournaments
+## 📄 Files Overview
 
-Run multiple tournaments for statistical significance:
+### Core System
+- `main_enhanced.py` - Main CLI interface
+- `tournament_system.py` - Tournament engine with multiple formats
+- `enhanced_logger.py` - Comprehensive logging system
+- `session_manager.py` - Session analysis and management tools
 
-```bash
-# Shell script for multiple runs
-for i in {1..10}; do
-    python main.py --seed $i --logfile logs/tournament_$i.jsonl
-done
-```
+### Game Implementation
+- `game_interface.py` - Generic game interface
+- `generic_tictactoe.py` - Configurable Tic-Tac-Toe
+- `connect_four.py` - Connect-Four example game
+- `llm_agents.py` - LLM player agents
 
-### Model Comparison Studies
+### Visualization & Analysis
+- `enhanced_viz.py` - Tournament visualizations and analytics
+- `demo_enhanced.py` - Demonstration script
 
-```bash
-# Test temperature effects
-python main.py --models phi4 phi4 --temp 0.1 --logfile logs/low_temp.jsonl
-python main.py --models phi4 phi4 --temp 1.5 --logfile logs/high_temp.jsonl
-
-# Compare different model combinations
-python main.py --models phi4 qwq --logfile logs/phi4_vs_qwq.jsonl
-python main.py --models llama3.3 qwq --logfile logs/llama_vs_qwq.jsonl
-```
-
-### Integration with Research
-
-The JSONL logs are perfect for research analysis:
-
-```python
-import pandas as pd
-import seaborn as sns
-
-# Convert to DataFrame for analysis
-df = pd.read_json('logs/tournament.jsonl', lines=True)
-move_df = df[df['type'] == 'move']
-
-# Statistical analysis
-sns.heatmap(move_counts, annot=True)
-plt.title('Move Distribution Analysis')
-plt.show()
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Areas for enhancement:
-
-- **New game variants**: Different board sizes, rules
-- **Advanced agents**: Minimax, neural network players
-- **Enhanced visualizations**: 3D plots, animations
-- **Performance optimizations**: Parallel tournaments
-- **UI improvements**: Web interface, real-time viewing
-
-## 📄 License
-
-This project is open source. Feel free to use, modify, and distribute.
-
-## 🙏 Acknowledgments
-
-- **Ollama team** for the excellent LLM serving platform
-- **Matplotlib** for powerful visualization capabilities
-- **Pydantic** for robust data validation
-- **The LLM community** for advancing AI capabilities
+### Utilities
+- `ollama_utils.py` - LLM communication utilities
+- `requirements.txt` - Python dependencies
 
 ---
 
-Ready to see which AI reigns supreme in Tic-Tac-Toe? Start your tournament today! 🏆 
+🎉 **Ready to run tournaments!** Start with `python main_enhanced.py --models phi4:latest qwq:latest` and explore from there. 
