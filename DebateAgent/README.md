@@ -33,28 +33,43 @@ Run a default debate with 3 agents, 5 rounds, using phi4:
 python orchestrator.py
 ```
 
-### Custom Parameters
+### Using Predefined Topics
 
 ```bash
+# Use a predefined topic by key
+python orchestrator.py --topic pineapple_pizza --num_agents 3 --rounds 2
+
+# See all available topics
+python orchestrator.py --list-topics
+
+# See just the topic keys
+python orchestrator.py --list-keys
+```
+
+### Using Custom Topics
+
+```bash
+# Use any custom debate question
 python orchestrator.py \
   --topic "Should AI replace human teachers in schools?" \
   --num_agents 4 \
   --rounds 3 \
   --model phi4 \
   --temp 0.8 \
-  --seed 123 \
-  --output custom_debate.jsonl
+  --seed 123
 ```
 
 ### Available Options
 
-- `--topic`: Debate topic (default: AI in education)
+- `--topic`: Debate topic key or custom question (default: ai_education)
 - `--num_agents`: Number of debate agents (default: 3)
 - `--rounds`: Number of debate rounds (default: 5)
 - `--model`: Ollama model to use (default: phi4)
 - `--temp`: Generation temperature 0.0-1.0 (default: 0.7)
 - `--seed`: Random seed for reproducibility (default: 42)
-- `--output`: Output JSONL file (default: debate_log.jsonl)
+- `--output`: Output location (default: auto-generated timestamped folder)
+- `--list-topics`: Show all available predefined topics
+- `--list-keys`: Show just the topic keys
 
 ## Log Format
 
