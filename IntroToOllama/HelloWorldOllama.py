@@ -41,7 +41,7 @@ def ollama_query(
 def save_response(model, prompt, response):
     """Saves the response to a file."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    results_dir = os.path.join(current_dir, "results")
+    results_dir = os.path.join(current_dir, "results", "HelloWorldOllama")
     os.makedirs(results_dir, exist_ok=True)
 
     safe_model_name = model.replace("/", "_").replace(":", "-")
