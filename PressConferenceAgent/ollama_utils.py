@@ -1,7 +1,5 @@
 from ollama import ListResponse, list
-from ollama import chat
-from pydantic import BaseModel
-from typing import Literal
+from ollama import chat 
 
 
 OLLAMA_NICKNAMES= {
@@ -30,16 +28,16 @@ def print_ollama_models():
         print('\n')
 
 
-def ollama_query(ollama_model: str,
-                 prompt_to_LLM: str,
-                 temperature: float,
-                 seed: int = 0,
+def ollama_query(ollama_model:str,
+                 prompt_to_LLM:str,
+                 temperature:float,
+                 seed:int = 0,
                  num_ctx: int = 4096,
                  top_k: int = 40,
                  top_p: float = 0.9,
                  min_p: float = 0.05,
                  repeat_penalty: float = 1.1,
-                 ) -> str:
+                 ):
     """
     See https://github.com/ollama/ollama/blob/main/docs/api.md#generate-request-with-options
     and https://github.com/ollama/ollama/blob/main/docs/modelfile.md for explanations
@@ -47,8 +45,8 @@ def ollama_query(ollama_model: str,
     response = chat(
             model=ollama_model,
             options={
-                "temperature": temperature,
-                 "seed": seed,
+                "temperature":temperature,
+                 "seed":seed,
                  "num_ctx": num_ctx,
                  "top_k": top_k,
                  "top_p": top_p,
@@ -65,84 +63,7 @@ def ollama_query(ollama_model: str,
     ret = response['message']['content']
     return ret
 
-
-# ----------------------------
-# 1. Yes/No schema
-# ----------------------------
-class YesNoResponse(BaseModel):
-    answer: Literal["Yes", "No"]
-
-# ----------------------------
-# 2. True/False schema
-# ----------------------------
-class TrueFalseResponse(BaseModel):
-    answer: Literal["True", "False"]
-
-# ----------------------------
-# 3. Multiple-Choice (A/B/C/D) schema
-# ----------------------------
-class MultipleChoiceResponse(BaseModel):
-    answer: Literal["A", "B", "C", "D"]
-
-def ollama_query_Yes_No(ollama_model: str, prompt: str, temperature: float, seed: int = 0,
-                 num_ctx: int = 4096,
-                 top_k: int = 40,
-                 top_p: float = 0.9,
-                 min_p: float = 0.05,
-                 repeat_penalty: float = 1.1,
-                 ):
-   
-    response = chat(
-            model=ollama_model,
-            options={
-                "temperature": temperature,
-                 "seed": seed,
-                 "num_ctx": num_ctx,
-                 "top_k": top_k,
-                 "top_p": top_p,
-                 "min_p": min_p,
-                 "repeat_penalty": repeat_penalty
-                 },
-            messages=[
-                {
-                    'role': 'user',
-                    'content': prompt
-                }
-            ],
-            format=YesNoResponse.model_json_schema(),
-        ) 
-    return response
-
-def ollama_query_ABCD(ollama_model: str, prompt: str, temperature: float, seed: int = 0,
-                 num_ctx: int = 4096,
-                 top_k: int = 40,
-                 top_p: float = 0.9,
-                 min_p: float = 0.05,
-                 repeat_penalty: float = 1.1
-                 ):
-   
-    response = chat(
-            model=ollama_model,
-            options={
-                "temperature": temperature,
-                 "seed": seed,
-                 "num_ctx": num_ctx,
-                 "top_k": top_k,
-                 "top_p": top_p,
-                 "min_p": min_p,
-                 "repeat_penalty": repeat_penalty
-                 },
-            messages=[
-                {
-                    'role': 'user',
-                    'content': prompt
-                }
-            ],
-            format=MultipleChoiceResponse.model_json_schema(),
-        ) 
-    return response
-
-
+ 
 if __name__ == '__main__':
     print_ollama_models()
     

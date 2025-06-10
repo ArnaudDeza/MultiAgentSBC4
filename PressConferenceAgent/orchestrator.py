@@ -1,149 +1,205 @@
-"""Main orchestrator for the simulated press conference."""
+"""
+Main orchestrator for the multi-agent press conference system.
+"""
 
-import argparse
 import json
-import random
-import sys
-from typing import List, Dict, Any
+import os
+import time
+from datetime import datetime
+from typing import Dict, Any, List
 
-import config
-from utils import JsonLogger
-from agents import SpokespersonAgent, JournalistAgent, NoteTakerAgent
-
-
-def load_transcript(output_file: str) -> List[Dict[str, Any]]:
-    """Load the transcript from the output JSONL file.
-    
-    Args:
-        output_file: Path to the JSONL file containing the transcript
-        
-    Returns:
-        List of records from the transcript
-    """
-    records = []
-    try:
-        with open(output_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    records.append(json.loads(line.strip()))
-    except FileNotFoundError:
-        print(f"Warning: Output file {output_file} not found")
-    return records
+from agents import (
+    SpokespersonAgent, JournalistAgent, NoteTakerAgent, SummarizerAgent
+)
+from config import DEFAULT_MODEL, DEFAULT_TEMP, DEFAULT_SEED
+from event_scenarios import list_events, get_event, list_event_keys
 
 
-def run_press_conference(num_journalists: int, model: str, temp: float, seed: int, 
-                        topic: str, output: str) -> None:
-    """Run the complete press conference simulation.
-    
-    Args:
-        num_journalists: Number of journalists to simulate
-        model: Ollama model name to use
-        temp: Temperature setting for text generation
-        seed: Random seed for reproducibility
-        topic: Topic for the press conference
-        output: Output file path for the transcript
-    """
-    # Set random seed for reproducibility
-    random.seed(seed)
-    
-    # Initialize logger
-    logger = JsonLogger(output)
-    
-    # Initialize agents
-    spokesperson = SpokespersonAgent(model, temp, seed)
-    journalists = [JournalistAgent(i, model, temp, seed + i) for i in range(num_journalists)]
-    note_taker = NoteTakerAgent(model, temp, seed)
-    
-    print(f"🎤 Starting Press Conference on: {topic}")
-    print(f"📊 Model: {model}, Temperature: {temp}, Seed: {seed}")
-    print(f"👥 Number of journalists: {num_journalists}")
-    print(f"📝 Logging to: {output}")
+class JsonLogger:
+    """Simple JSONL logger."""
+    def __init__(self, path: str):
+        self.path = path
+    def log(self, record: Dict[str, Any]):
+        with open(self.path, 'a', encoding='utf-8') as f:
+            f.write(json.dumps({"timestamp": datetime.utcnow().isoformat(), **record}) + '\n')
+
+def get_user_config() -> Dict[str, Any]:
+    """Interactively get press conference settings from the user."""
+    print("Welcome to the Multi-Agent Press Conference Simulator!")
     print("=" * 60)
     
-    try:
-        # Opening statement
-        print("📢 Generating opening statement...")
-        statement = spokesperson.opening_statement(topic)
-        logger.log({"type": "opening", "text": statement})
-        print(f"Spokesperson: {statement}\n")
-        
-        # Q&A Loop
-        print("❓ Starting Q&A session...")
-        for j in journalists:
-            print(f"Journalist {j.id} asking question...")
-            
-            # Journalist asks question
-            question = j.ask_question(statement)
-            logger.log({"type": "question", "journalist": j.id, "text": question})
-            print(f"Journalist {j.id}: {question}")
-            
-            # Spokesperson answers
-            answer = spokesperson.answer_question(question)
-            logger.log({"type": "answer", "journalist": j.id, "text": answer})
-            print(f"Spokesperson: {answer}\n")
-        
-        # Generate summary
-        print("📋 Generating meeting minutes...")
-        transcript = load_transcript(output)
-        minutes = note_taker.summarize(transcript)
-        logger.log({"type": "minutes", "text": minutes})
-        
-        print("=" * 60)
-        print("📋 PRESS CONFERENCE MINUTES:")
-        print("=" * 60)
-        print(minutes)
-        print("=" * 60)
-        print(f"✅ Complete transcript saved to: {output}")
-        
-    except Exception as e:
-        print(f"❌ Error during press conference: {e}")
-        # Retry once with a different seed
+    list_events()
+    event_keys = list_event_keys()
+    while True:
+        event_key = input("Choose an event key from the list: ")
+        if event_key in event_keys:
+            break
+        print(f"Invalid key. Please choose from: {', '.join(event_keys)}")
+    
+    while True:
         try:
-            print("🔄 Retrying with adjusted parameters...")
-            run_press_conference(num_journalists, model, temp, seed + 1000, topic, output)
-        except Exception as retry_e:
-            print(f"❌ Retry failed: {retry_e}")
-            sys.exit(1)
+            num_journalists = int(input("Enter the number of journalists (e.g., 2 or 3): "))
+            if num_journalists > 0:
+                break
+        except ValueError:
+            print("Please enter a valid number.")
 
+    journalists = []
+    print("\nDefine each journalist's model and bias.")
+    for i in range(num_journalists):
+        print(f"\n--- Journalist {i} ---")
+        model = input(f"Enter model for Journalist {i} (default: {DEFAULT_MODEL}): ") or DEFAULT_MODEL
+        bias = input(f"Enter bias for Journalist {i} (e.g., 'left-leaning', 'right-leaning', 'neutral'): ")
+        journalists.append({"model": model, "bias": bias})
 
-def main() -> None:
-    """Main CLI entrypoint."""
-    parser = argparse.ArgumentParser(description="Simulated Press Conference with Multiple Agents")
+    print("\n--- Other Agents ---")
+    spokesperson_model = input(f"Enter model for Spokesperson (default: {DEFAULT_MODEL}): ") or DEFAULT_MODEL
+    notetaker_model = input(f"Enter model for Note-Taker (default: {DEFAULT_MODEL}): ") or DEFAULT_MODEL
+    summarizer_model = input(f"Enter model for Summarizer (default: {DEFAULT_MODEL}): ") or DEFAULT_MODEL
     
-    parser.add_argument("--num_journalists", type=int, default=config.DEFAULT_NUM_JOURNALISTS,
-                       help=f"Number of journalists (default: {config.DEFAULT_NUM_JOURNALISTS})")
-    parser.add_argument("--model", type=str, default=config.DEFAULT_MODEL,
-                       help=f"Ollama model to use (default: {config.DEFAULT_MODEL})")
-    parser.add_argument("--temp", type=float, default=config.DEFAULT_TEMP,
-                       help=f"Temperature for text generation (default: {config.DEFAULT_TEMP})")
-    parser.add_argument("--seed", type=int, default=config.DEFAULT_SEED,
-                       help=f"Random seed (default: {config.DEFAULT_SEED})")
-    parser.add_argument("--topic", type=str, default="Technology Innovation",
-                       help="Topic for the press conference (default: 'Technology Innovation')")
-    parser.add_argument("--output", type=str, default=config.DEFAULT_OUTPUT,
-                       help=f"Output JSONL file (default: {config.DEFAULT_OUTPUT})")
-    
-    args = parser.parse_args()
-    
-    # Validate arguments
-    if args.num_journalists < 1:
-        print("❌ Error: Number of journalists must be at least 1")
-        sys.exit(1)
-    
-    if args.temp < 0 or args.temp > 2:
-        print("❌ Error: Temperature must be between 0 and 2")
-        sys.exit(1)
-    
-    # Run the press conference
-    run_press_conference(
-        num_journalists=args.num_journalists,
-        model=args.model,
-        temp=args.temp,
-        seed=args.seed,
-        topic=args.topic,
-        output=args.output
-    )
+    while True:
+        try:
+            rounds = int(input("\nEnter number of question rounds (1 question per journalist per round): "))
+            if rounds > 0:
+                break
+        except ValueError:
+            print("Please enter a valid number.")
 
+    return {
+        "event_key": event_key,
+        "journalists": journalists,
+        "spokesperson_model": spokesperson_model,
+        "notetaker_model": notetaker_model,
+        "summarizer_model": summarizer_model,
+        "rounds": rounds,
+        "temp": DEFAULT_TEMP,
+        "seed": DEFAULT_SEED,
+    }
+
+def create_results_folder(event_key: str, num_journalists: int) -> str:
+    """Create a timestamped results folder."""
+    base_dir = os.path.join(os.path.dirname(__file__), "results")
+    os.makedirs(base_dir, exist_ok=True)
+    folder_name = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{event_key}_{num_journalists}journalists"
+    results_folder = os.path.join(base_dir, folder_name)
+    os.makedirs(results_folder, exist_ok=True)
+    return results_folder
+
+def format_transcript(log_records: List[Dict[str, Any]]) -> str:
+    """Formats the log records into a readable string transcript."""
+    lines = []
+    for record in log_records:
+        role = record.get("role", "System")
+        message = record.get("message", "")
+        lines.append(f"{role}: {message}")
+    return "\n\n".join(lines)
+
+def run_press_conference(config: Dict[str, Any]):
+    """Main function to run the simulation."""
+    start_time = time.time()
+    event = get_event(config["event_key"])
+    results_folder = create_results_folder(config["event_key"], len(config["journalists"]))
+    
+    transcript_path = os.path.join(results_folder, "transcript.jsonl")
+    metadata_path = os.path.join(results_folder, "metadata.json")
+    minutes_path = os.path.join(results_folder, "minutes.txt")
+    summary_path = os.path.join(results_folder, "summary.txt")
+    
+    logger = JsonLogger(transcript_path)
+    logger.log({"event": "conference_start", "config": config, "event_details": event})
+    
+    # Initialize Agents
+    spokesperson = SpokespersonAgent(config["spokesperson_model"], config["temp"], config["seed"])
+    journalists = [
+        JournalistAgent(j["model"], config["temp"], config["seed"] + i + 1, j["bias"])
+        for i, j in enumerate(config["journalists"])
+    ]
+    note_taker = NoteTakerAgent(config["notetaker_model"], config["temp"], config["seed"] + 100)
+    summarizer = SummarizerAgent(config["summarizer_model"], config["temp"], config["seed"] + 200)
+
+    print("\n" + "="*60)
+    print(f"Starting Press Conference: {event['title']}")
+    print("="*60 + "\n")
+
+    # 1. Opening Statement
+    print("--- Spokesperson's Opening Statement ---")
+    opening_statement = spokesperson.generate_opening_statement(event["details"])
+    print(opening_statement)
+    logger.log({"role": "Spokesperson", "message": opening_statement, "type": "opening_statement"})
+    
+    # 2. Q&A Rounds
+    for r in range(config["rounds"]):
+        print(f"\n--- Question Round {r+1} ---")
+        for i, journalist in enumerate(journalists):
+            transcript_str = format_transcript(logger.log_records)
+            
+            # Journalist asks
+            print(f"\nJournalist {i} ({journalist.bias}, {journalist.model}) is asking...")
+            question = journalist.generate_question(transcript_str)
+            print(f"Question: {question}")
+            logger.log({"role": f"Journalist {i}", "bias": journalist.bias, "model": journalist.model, "message": question, "type": "question"})
+            
+            # Spokesperson responds
+            transcript_str = format_transcript(logger.log_records) # Update transcript
+            print("\nSpokesperson is responding...")
+            response = spokesperson.generate_response(event["details"], transcript_str, question)
+            print(f"Response: {response}")
+            logger.log({"role": "Spokesperson", "message": response, "type": "answer"})
+
+    # 3. Note-Taker generates minutes
+    print("\n" + "="*60)
+    print("--- Generating Meeting Minutes ---")
+    transcript_str = format_transcript(logger.log_records)
+    minutes = note_taker.generate_minutes(transcript_str)
+    print(minutes)
+    logger.log({"role": "Note-Taker", "message": minutes, "type": "minutes"})
+    with open(minutes_path, 'w', encoding='utf-8') as f:
+        f.write(minutes)
+
+    # 4. Summarizer generates summary
+    print("\n" + "="*60)
+    print("--- Generating Final Summary ---")
+    summary = summarizer.generate_summary(minutes)
+    print(summary)
+    logger.log({"role": "Summarizer", "message": summary, "type": "summary"})
+    with open(summary_path, 'w', encoding='utf-8') as f:
+        f.write(summary)
+
+    # 5. Save final metadata
+    duration = time.time() - start_time
+    final_metadata = {
+        "config": config,
+        "event": event,
+        "timing": {"duration_seconds": round(duration, 2)},
+        "files": {
+            "transcript": os.path.basename(transcript_path),
+            "metadata": os.path.basename(metadata_path),
+            "minutes": os.path.basename(minutes_path),
+            "summary": os.path.basename(summary_path),
+        }
+    }
+    with open(metadata_path, 'w', encoding='utf-8') as f:
+        json.dump(final_metadata, f, indent=4)
+        
+    print("\n" + "="*60)
+    print(f"Press conference finished. Results saved in: {results_folder}")
+
+# Add a simple in-memory log for transcript formatting
+def add_in_memory_logging(logger_class):
+    original_init = logger_class.__init__
+    def new_init(self, *args, **kwargs):
+        original_init(self, *args, **kwargs)
+        self.log_records = []
+    logger_class.__init__ = new_init
+
+    original_log = logger_class.log
+    def new_log(self, record: Dict[str, Any]):
+        self.log_records.append(record)
+        original_log(self, record)
+    logger_class.log = new_log
+    return logger_class
 
 if __name__ == "__main__":
-    main() 
+    JsonLogger = add_in_memory_logging(JsonLogger)
+    user_config = get_user_config()
+    run_press_conference(user_config) 
