@@ -79,4 +79,16 @@ Want to listen to your debate? Use the `produce_debate_audio.py` script. Run it 
 python DebateAgent/produce_debate_audio.py DebateAgent/results/your_debate_results_folder_name
 ```
 
-This will create a `debate_audio.mp3` file inside that same results folder. Enjoy the show! 
+This will create a `debate_audio.mp3` file inside that same results folder. Enjoy the show!
+
+### 5. Visualizing the Debate
+
+To see a nice, chat-style visualization of the debate, you can use the `visualize_debate.py` script. It generates a single HTML file that you can open in any web browser.
+
+**Example:**
+
+```bash
+python DebateAgent/visualize_debate.py DebateAgent/results/your_debate_results_folder_name
+```
+
+This will create a `debate_visualization.html` file inside the results folder. Double-click it to see the debate unfold in a familiar chat interface! 
