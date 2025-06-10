@@ -1,0 +1,6 @@
+Model: phi4:latest
+Prompt:
+hi cutie
+
+Response:
+Hello! 😊 How can I assist you today? If there's something specific you'd like to talk about or need help with, just let me know. Whether it's a question or just wanting to chat, I'm here for you. 🌟
