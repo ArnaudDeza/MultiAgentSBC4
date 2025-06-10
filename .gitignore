@@ -1,1 +1,6 @@
 *.pyc
+*.html
+*.mp3
+*.jsonl
+*.json
+*.txt 

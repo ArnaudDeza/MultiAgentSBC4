@@ -29,7 +29,7 @@ Your Stance: {stance}
 
 
 OPENING_STATEMENT_PROMPT = """
-Please provide a strong and clear opening statement based on your assigned stance. Do not sound like a robot or over pompous. Be concise and to the point, use no more than 100 words or less.
+Please provide a strong and clear opening statement based on your assigned stance. Do not sound like a robot/AI or over pompous. Be concise and to the point, use no more than 100 words or less.
 """
 
 
