@@ -1,435 +1,250 @@
 """
-Main orchestrator for multi-agent debate system.
+Main orchestrator for the multi-agent debate system.
+This script guides the user through setting up and running a debate between LLM agents.
 """
 
-import argparse
-import random
 import json
 import os
 import platform
+import random
 import time
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Dict, Any, List
 
-from config import (
-    DEFAULT_MODEL, DEFAULT_TEMP, DEFAULT_NUM_AGENTS, 
-    DEFAULT_ROUNDS, DEFAULT_SEED, DEFAULT_OUTPUT
-)
-from utils import JsonLogger
 from agents import DebateAgent, JudgeAgent
-from topics import get_topic, list_topics, list_topic_keys, DEBATE_TOPICS
-from audio_generator import DebateAudioGenerator
+from config import DEFAULT_MODEL, DEFAULT_TEMP, DEFAULT_SEED
+from prompts import (
+    DEBATE_AGENT_SYSTEM_PROMPT, 
+    OPENING_STATEMENT_PROMPT, 
+    DEBATE_RESPONSE_PROMPT
+)
+from topics import get_topic, list_topics, list_topic_keys
 
 
-def load_jsonl(file_path: str) -> List[Dict[str, Any]]:
-    """Load records from a JSONL file."""
-    records = []
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    records.append(json.loads(line))
-    except FileNotFoundError:
-        pass  # File doesn't exist yet
-    return records
+def now_iso() -> str:
+    """Return current UTC timestamp in ISO-8601 format."""
+    return datetime.utcnow().isoformat()
 
 
-def create_results_folder(topic: str, num_agents: int, rounds: int, model: str) -> str:
-    """
-    Create a timestamped results folder for this debate run.
-    
-    Args:
-        topic: Debate topic
-        num_agents: Number of agents
-        rounds: Number of rounds
-        model: Model name
+class JsonLogger:
+    """Simple JSONL logger that appends records with timestamps."""
+    def __init__(self, path: str) -> None:
+        self.path = path
         
-    Returns:
-        Path to the created results folder
+    def log(self, record: Dict[str, Any]) -> None:
+        timestamped_record = {"timestamp": now_iso(), **record}
+        with open(self.path, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(timestamped_record) + '\n')
+
+
+def get_user_config() -> Dict[str, Any]:
     """
-    # Create base results directory
-    base_results_dir = "results"
+    Interactively prompt the user to configure the debate settings.
+    """
+    print("Welcome to the Multi-Agent Debate System!")
+    print("=" * 50)
+    
+    # 1. Choose topic
+    list_topics()
+    topic_keys = list_topic_keys()
+    while True:
+        topic_key = input(f"Choose a topic key from the list: ")
+        if topic_key in topic_keys:
+            break
+        print(f"Invalid topic key. Please choose from: {', '.join(topic_keys)}")
+    
+    # 2. Number of agents
+    while True:
+        try:
+            num_agents = int(input("Enter the number of debate agents (e.g., 2 or 3): "))
+            if num_agents > 1:
+                break
+            print("You need at least 2 agents to have a debate.")
+        except ValueError:
+            print("Please enter a valid number.")
+
+    # 3. Number of rounds
+    while True:
+        try:
+            rounds = int(input("Enter the number of debate rounds (e.g., 3 or 5): "))
+            if rounds > 0:
+                break
+            print("You need at least 1 round.")
+        except ValueError:
+            print("Please enter a valid number.")
+            
+    # 4. Models and Stances
+    agent_models = []
+    stances = []
+    print("\nDefine each agent's model and stance on the topic.")
+    for i in range(num_agents):
+        print(f"\n--- Agent {i} ---")
+        model = input(f"Enter Ollama model for Agent {i} (default: {DEFAULT_MODEL}): ") or DEFAULT_MODEL
+        stance = input(f"Enter stance for Agent {i} (e.g., 'For', 'Against', 'Neutral', 'Skeptical'): ")
+        agent_models.append(model)
+        stances.append(stance)
+
+    judge_model = input(f"\nEnter the Ollama model for the judge (default: {DEFAULT_MODEL}): ") or DEFAULT_MODEL
+    
+    return {
+        "topic_key": topic_key,
+        "num_agents": num_agents,
+        "rounds": rounds,
+        "agent_models": agent_models,
+        "judge_model": judge_model,
+        "stances": stances,
+        "temp": DEFAULT_TEMP,
+        "seed": DEFAULT_SEED
+    }
+
+
+def create_results_folder(topic: str, num_agents: int, rounds: int, models: List[str]) -> str:
+    """Create a timestamped results folder for this debate run."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    base_results_dir = os.path.join(current_dir, "results")
     os.makedirs(base_results_dir, exist_ok=True)
     
-    # Create timestamped folder name
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    clean_topic = "".join(c for c in topic if c.isalnum() or c in (' ', '-', '_')).rstrip().replace(' ', '_')[:50]
     
-    # Clean topic for folder name (remove special characters)
-    clean_topic = "".join(c for c in topic if c.isalnum() or c in (' ', '-', '_')).rstrip()
-    clean_topic = clean_topic.replace(' ', '_')[:50]  # Limit length
-    
-    folder_name = f"{timestamp}_{num_agents}agents_{rounds}rounds_{model}_{clean_topic}"
+    # Create a model string for the folder name
+    unique_models = sorted(list(set(models)))
+    if len(unique_models) == 1:
+        model_str = unique_models[0].replace(":", "_") # Clean up model name for folder
+    else:
+        model_str = "multi-model"
+
+    folder_name = f"{timestamp}_{num_agents}agents_{rounds}rounds_{model_str}_{clean_topic}"
     results_folder = os.path.join(base_results_dir, folder_name)
     
     os.makedirs(results_folder, exist_ok=True)
     return results_folder
 
 
-def collect_system_metadata() -> Dict[str, Any]:
-    """Collect system and environment metadata."""
-    try:
-        import psutil
-        cpu_count = psutil.cpu_count()
-        memory_gb = round(psutil.virtual_memory().total / (1024**3), 2)
-    except ImportError:
-        cpu_count = os.cpu_count()
-        memory_gb = "unknown"
-    
-    return {
-        "system": {
-            "platform": platform.platform(),
-            "python_version": platform.python_version(),
-            "cpu_count": cpu_count,
-            "memory_gb": memory_gb,
-            "hostname": platform.node()
-        },
-        "environment": {
-            "working_directory": os.getcwd(),
-            "user": os.getenv('USER', 'unknown')
-        }
-    }
+def load_jsonl(file_path: str) -> List[Dict[str, Any]]:
+    """Load records from a JSONL file."""
+    records = []
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    records.append(json.loads(line))
+    return records
 
 
-def run_debate(
-    topic: str,
-    num_agents: int,
-    rounds: int,
-    model: str,
-    temp: float,
-    seed: int,
-    output: str = None,
-    generate_audio: bool = False
-) -> None:
-    """
-    Run a multi-agent debate on the given topic.
-    
-    Args:
-        topic: Debate topic
-        num_agents: Number of debate agents
-        rounds: Number of debate rounds
-        model: Ollama model to use
-        temp: Temperature for generation
-        seed: Random seed
-        output: Output file path (if None, creates timestamped folder)
-        generate_audio: Whether to generate audio transcript using TTS
-    """
-    # Record start time
+def run_debate(config: Dict[str, Any]) -> None:
+    """Run a multi-agent debate based on the provided configuration."""
     start_time = time.time()
-    start_datetime = datetime.now()
     
-    # Create results folder if output not specified
-    if output is None:
-        results_folder = create_results_folder(topic, num_agents, rounds, model)
-        transcript_path = os.path.join(results_folder, "transcript.jsonl")
-        metadata_path = os.path.join(results_folder, "metadata.json")
-    else:
-        # Use specified output path
-        if os.path.dirname(output):
-            os.makedirs(os.path.dirname(output), exist_ok=True)
-        transcript_path = output
-        metadata_path = output.replace('.jsonl', '_metadata.json')
-        results_folder = os.path.dirname(output) or "."
+    # Unpack config
+    topic_key = config["topic_key"]
+    topic_question = get_topic(topic_key)
+    num_agents = config["num_agents"]
+    rounds = config["rounds"]
+    agent_models = config["agent_models"]
+    judge_model = config["judge_model"]
+    stances = config["stances"]
+    temp = config["temp"]
+    seed = config["seed"]
     
-    # Set random seed
-    random.seed(seed)
-    
-    # Initialize logger
+    # Setup results directory and logger
+    results_folder = create_results_folder(topic_key, num_agents, rounds, agent_models)
+    transcript_path = os.path.join(results_folder, "transcript.jsonl")
+    metadata_path = os.path.join(results_folder, "metadata.json")
     logger = JsonLogger(transcript_path)
-    
-    # Log debate start
+
+    # Log debate metadata
     logger.log({
         "event": "debate_start",
-        "topic": topic,
-        "num_agents": num_agents,
-        "rounds": rounds,
-        "model": model,
-        "temperature": temp,
-        "seed": seed
+        "config": config,
+        "topic_question": topic_question
     })
     
-    # Create debate agents
-    agents = []
-    for i in range(num_agents):
-        agent = DebateAgent(
-            agent_id=i,
-            model=model,
-            temp=temp,
-            seed=seed + i  # Different seed for each agent
-        )
-        agents.append(agent)
+    # Initialize agents
+    agents = [DebateAgent(i, agent_models[i], temp, seed + i) for i in range(num_agents)]
+    judge = JudgeAgent(judge_model, temp, seed + 1000)
     
-    print(f"Starting debate on topic: {topic}")
-    print(f"Agents: {num_agents}, Rounds: {rounds}, Model: {model}")
-    print("=" * 60)
-    
-    # Opening statements
-    print("OPENING STATEMENTS:")
+    agent_model_names = ", ".join(agent_models)
+    print("\n" + "=" * 60)
+    print(f"Starting Debate On: {topic_question}")
+    print(f"Agents: {num_agents} ({agent_model_names}) | Rounds: {rounds} | Judge: {judge_model}")
+    print("=" * 60 + "\n")
+
+    # --- OPENING STATEMENTS ---
+    print("--- OPENING STATEMENTS ---")
     for i, agent in enumerate(agents):
-        prompt = f"Please introduce your position on this topic: {topic}. Be clear and concise in your opening statement."
-        response = agent.respond(prompt)
+        system_prompt = DEBATE_AGENT_SYSTEM_PROMPT.format(topic=topic_question, stance=stances[i])
+        full_prompt = f"{system_prompt}\n\n{OPENING_STATEMENT_PROMPT}"
         
-        logger.log({
-            "round": 0,
-            "agent": i,
-            "message": response,
-            "type": "opening_statement"
-        })
-        
-        print(f"Agent {i}: {response[:200]}{'...' if len(response) > 200 else ''}")
-        print()
+        response = agent.respond(full_prompt)
+        logger.log({"round": 0, "agent": i, "stance": stances[i], "model": agent_models[i], "message": response, "type": "opening_statement"})
+        print(f"Agent {i} ({stances[i]}, {agent_models[i]}): {response}\n")
     
-    print("=" * 60)
-    
-    # Main debate rounds
+    # --- DEBATE ROUNDS ---
     for round_num in range(1, rounds + 1):
-        print(f"ROUND {round_num}:")
+        print(f"\n--- ROUND {round_num} ---")
         
         for i, agent in enumerate(agents):
-            # Gather last messages from other agents
-            last_messages = []
+            # Get previous messages from all agents in the last round (or opening statements)
+            previous_messages = []
             current_transcripts = load_jsonl(transcript_path)
             
-            # Get the most recent message from each other agent
-            other_agents_latest = {}
-            for record in reversed(current_transcripts):
-                if (record.get('agent') is not None and 
-                    record['agent'] != i and 
-                    record['agent'] not in other_agents_latest):
-                    other_agents_latest[record['agent']] = record.get('message', '')
+            for record in current_transcripts:
+                if record.get("round") == round_num - 1:
+                    msg = f"Agent {record['agent']} ({record['stance']}, {record['model']}): {record['message']}"
+                    previous_messages.append(msg)
+
+            previous_statements = "\n\n".join(previous_messages)
             
-            # Build combined prompt
-            if other_agents_latest:
-                others_combined = "\n\n".join([
-                    f"Agent {agent_id}: {msg}" 
-                    for agent_id, msg in sorted(other_agents_latest.items())
-                ])
-                prompt = f"Round {round_num}: Respond to these statements from other agents:\n\n{others_combined}\n\nYour response:"
-            else:
-                prompt = f"Round {round_num}: Continue the debate on {topic}. Present your arguments clearly."
+            system_prompt = DEBATE_AGENT_SYSTEM_PROMPT.format(topic=topic_question, stance=stances[i])
+            response_prompt = DEBATE_RESPONSE_PROMPT.format(previous_statements=previous_statements)
+            full_prompt = f"{system_prompt}\n\n{response_prompt}"
             
-            response = agent.respond(prompt)
-            
-            logger.log({
-                "round": round_num,
-                "agent": i,
-                "message": response,
-                "type": "debate_response"
-            })
-            
-            print(f"Agent {i}: {response[:200]}{'...' if len(response) > 200 else ''}")
-            print()
-        
-        print("-" * 40)
-    
-    print("=" * 60)
-    print("JUDGING PHASE:")
-    
-    # Load full transcript for judging
+            response = agent.respond(full_prompt)
+            logger.log({"round": round_num, "agent": i, "stance": stances[i], "model": agent_models[i], "message": response, "type": "debate_response"})
+            print(f"Agent {i} ({stances[i]}, {agent_models[i]}): {response}\n")
+
+    # --- JUDGING PHASE ---
+    print("\n" + "=" * 60)
+    print("--- JUDGING ---")
     transcripts = load_jsonl(transcript_path)
+    winner_id, justification = judge.pick_winner(transcripts)
     
-    # Create judge and pick winner
-    judge = JudgeAgent(model=model, temp=temp, seed=seed + 1000)
-    winner_letter, justification = judge.pick_winner(transcripts)
+    logger.log({"event": "verdict", "winner": winner_id, "justification": justification})
     
-    # Log verdict
-    verdict = {
-        "event": "verdict",
-        "winner": winner_letter,
-        "justification": justification
-    }
-    logger.log(verdict)
+    print(f"WINNER: Agent {winner_id}")
+    print(f"Justification: {justification}")
     
-    # Record end time and calculate duration
-    end_time = time.time()
-    end_datetime = datetime.now()
-    duration_seconds = end_time - start_time
-    
-    # Collect system metadata
-    system_metadata = collect_system_metadata()
-    
-    # Create comprehensive metadata
+    # --- SAVE METADATA ---
+    duration_seconds = time.time() - start_time
     metadata = {
-        "debate_info": {
-            "topic": topic,
-            "num_agents": num_agents,
-            "rounds": rounds,
-            "model": model,
-            "temperature": temp,
-            "seed": seed
-        },
+        "debate_config": config,
+        "topic_question": topic_question,
         "timing": {
-            "start_time": start_datetime.isoformat(),
-            "end_time": end_datetime.isoformat(),
-            "duration_seconds": round(duration_seconds, 2),
-            "duration_human": f"{int(duration_seconds // 60)}m {int(duration_seconds % 60)}s"
+            "start_time": datetime.fromtimestamp(start_time).isoformat(),
+            "end_time": datetime.now().isoformat(),
+            "duration_seconds": round(duration_seconds, 2)
         },
         "results": {
-            "winner": winner_letter,
+            "winner": winner_id,
             "justification": justification,
-            "total_messages": len(transcripts),
             "transcript_file": os.path.basename(transcript_path)
         },
-        "files": {
-            "transcript": os.path.basename(transcript_path),
-            "metadata": os.path.basename(metadata_path),
-            "results_folder": os.path.basename(results_folder)
-        },
-        **system_metadata
+        "system_info": {
+            "platform": platform.platform(),
+            "python_version": platform.python_version(),
+        }
     }
     
-    # Save metadata to JSON file
     with open(metadata_path, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, indent=2, ensure_ascii=False)
-    
-    print(f"WINNER: Agent {winner_letter}")
-    print(f"Justification: {justification}")
-    print(f"\nResults saved to: {results_folder}")
+        json.dump(metadata, f, indent=4)
+        
+    print("\n" + "=" * 60)
+    print(f"Debate finished. Results saved in: {results_folder}")
     print(f"  - Transcript: {os.path.basename(transcript_path)}")
     print(f"  - Metadata: {os.path.basename(metadata_path)}")
-    print(f"  - Duration: {metadata['timing']['duration_human']}")
-    
-    # Generate audio if requested
-    if generate_audio:
-        print("\n🔊 Generating audio transcript...")
-        try:
-            audio_dir = os.path.join(results_folder, "audio")
-            audio_generator = DebateAudioGenerator()
-            main_audio_file = audio_generator.generate_audio_from_transcript(
-                transcript_path, audio_dir, metadata
-            )
-            print(f"✅ Audio generated successfully!")
-            print(f"  - Audio files: {os.path.basename(audio_dir)}/")
-            metadata['files']['audio_dir'] = os.path.basename(audio_dir)
-            
-            # Update metadata with audio info
-            with open(metadata_path, 'w', encoding='utf-8') as f:
-                json.dump(metadata, f, indent=2, ensure_ascii=False)
-                
-        except ImportError:
-            print("❌ pyttsx3 not available. Install with: pip install pyttsx3")
-        except Exception as e:
-            print(f"❌ Audio generation failed: {e}")
-            print("   Debate results are still available in text format.")
-
-
-def resolve_topic(topic_input: str) -> str:
-    """
-    Resolve topic input to actual topic question.
-    
-    Args:
-        topic_input: Either a topic key or a custom topic question
-        
-    Returns:
-        The resolved topic question
-    """
-    # First, check if it's a predefined topic key
-    predefined_topic = get_topic(topic_input)
-    if predefined_topic:
-        print(f"Using predefined topic '{topic_input}': {predefined_topic}")
-        return predefined_topic
-    else:
-        # Use as custom topic
-        print(f"Using custom topic: {topic_input}")
-        return topic_input
-
-
-def main() -> None:
-    """Main CLI entrypoint."""
-    parser = argparse.ArgumentParser(
-        description="Multi-agent debate system",
-        epilog="Examples:\n"
-               "  python orchestrator.py --topic ai_education  # Use predefined topic\n"
-               "  python orchestrator.py --topic 'Should cats rule the world?'  # Custom topic\n"
-               "  python orchestrator.py --list-topics  # Show all predefined topics",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    
-    parser.add_argument(
-        "--topic",
-        type=str,
-        default="ai_education",
-        help="Debate topic (can be a predefined topic key or custom question)"
-    )
-    
-    parser.add_argument(
-        "--list-topics",
-        action="store_true",
-        help="List all available predefined topics and exit"
-    )
-    
-    parser.add_argument(
-        "--list-keys",
-        action="store_true", 
-        help="List just the topic keys and exit"
-    )
-    
-    parser.add_argument(
-        "--audio",
-        action="store_true",
-        help="Generate audio transcript using text-to-speech"
-    )
-    parser.add_argument(
-        "--num_agents",
-        type=int,
-        default=DEFAULT_NUM_AGENTS,
-        help=f"Number of debate agents (default: {DEFAULT_NUM_AGENTS})"
-    )
-    parser.add_argument(
-        "--rounds",
-        type=int,
-        default=DEFAULT_ROUNDS,
-        help=f"Number of debate rounds (default: {DEFAULT_ROUNDS})"
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        default=DEFAULT_MODEL,
-        help=f"Ollama model to use (default: {DEFAULT_MODEL})"
-    )
-    parser.add_argument(
-        "--temp",
-        type=float,
-        default=DEFAULT_TEMP,
-        help=f"Temperature for generation (default: {DEFAULT_TEMP})"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=DEFAULT_SEED,
-        help=f"Random seed (default: {DEFAULT_SEED})"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Output JSONL file (default: auto-generated timestamped folder)"
-    )
-    
-    args = parser.parse_args()
-    
-    # Handle list commands
-    if args.list_topics:
-        list_topics()
-        return
-    
-    if args.list_keys:
-        list_topic_keys()
-        return
-    
-    # Resolve the topic
-    resolved_topic = resolve_topic(args.topic)
-    
-    run_debate(
-        topic=resolved_topic,
-        num_agents=args.num_agents,
-        rounds=args.rounds,
-        model=args.model,
-        temp=args.temp,
-        seed=args.seed,
-        output=args.output,
-        generate_audio=args.audio
-    )
 
 
 if __name__ == "__main__":
-    main() 
+    debate_configuration = get_user_config()
+    run_debate(debate_configuration) 

@@ -9,12 +9,9 @@ OLLAMA_NICKNAMES = {
 }
 
 # Default configuration values
-DEFAULT_MODEL = "phi4"
+DEFAULT_MODEL = "phi4:latest"
 DEFAULT_TEMP = 0.7
-DEFAULT_NUM_AGENTS = 3
-DEFAULT_ROUNDS = 5
 DEFAULT_SEED = 42
-DEFAULT_OUTPUT = "debate_log.jsonl"
 
 # Ollama query parameters
 DEFAULT_NUM_CTX = 4096

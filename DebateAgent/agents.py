@@ -2,10 +2,14 @@
 Agent classes for multi-agent debate system.
 """
 
-import json
+import re
 from typing import List, Dict, Any, Tuple
-from ollama_utils import ollama_query, ollama_query_ABCD
-from config import DEFAULT_NUM_CTX, DEFAULT_TOP_K, DEFAULT_TOP_P, DEFAULT_MIN_P, DEFAULT_REPEAT_PENALTY
+from ollama_utils import ollama_query
+from config import (
+    DEFAULT_NUM_CTX, DEFAULT_TOP_K, DEFAULT_TOP_P, 
+    DEFAULT_MIN_P, DEFAULT_REPEAT_PENALTY
+)
+from prompts import JUDGE_SYSTEM_PROMPT
 
 
 class DebateAgent:
@@ -37,7 +41,8 @@ class DebateAgent:
             LLM response text
         """
         try:
-            response = ollama_query(
+            # First attempt to get a response
+            return ollama_query(
                 ollama_model=self.model,
                 prompt_to_LLM=message,
                 temperature=self.temp,
@@ -48,26 +53,24 @@ class DebateAgent:
                 min_p=DEFAULT_MIN_P,
                 repeat_penalty=DEFAULT_REPEAT_PENALTY
             )
-            return response
         except Exception as e:
-            print(f"Error in agent {self.agent_id} response: {e}")
-            # Retry once
+            print(f"Error in agent {self.agent_id} response: {e}. Retrying once...")
             try:
-                response = ollama_query(
+                # Retry once with a different seed
+                return ollama_query(
                     ollama_model=self.model,
                     prompt_to_LLM=message,
                     temperature=self.temp,
-                    seed=self.seed + 1,  # Slightly different seed for retry
+                    seed=self.seed + 1,  # Use a different seed for the retry
                     num_ctx=DEFAULT_NUM_CTX,
                     top_k=DEFAULT_TOP_K,
                     top_p=DEFAULT_TOP_P,
                     min_p=DEFAULT_MIN_P,
                     repeat_penalty=DEFAULT_REPEAT_PENALTY
                 )
-                return response
             except Exception as e2:
                 print(f"Retry failed for agent {self.agent_id}: {e2}")
-                return f"Agent {self.agent_id} encountered an error and cannot respond."
+                return f"Agent {self.agent_id} encountered an error and could not respond."
 
 
 class JudgeAgent:
@@ -94,31 +97,20 @@ class JudgeAgent:
             transcripts: List of debate log records
             
         Returns:
-            Tuple of (winner_letter, justification)
+            Tuple of (winner_id, justification)
         """
-        # Extract final arguments from each agent
-        agent_args = {}
+        # Format the transcript for the prompt
+        formatted_transcript = ""
         for record in transcripts:
-            if 'agent' in record and 'message' in record:
-                agent_id = record['agent']
-                agent_args[agent_id] = record['message']
+            if "agent" in record and "message" in record:
+                formatted_transcript += f"Round {record.get('round', 'N/A')}, Agent {record['agent']}: {record['message']}\n\n"
         
-        # Build prompt for judge
-        prompt_parts = ["Based on the following debate, which agent made the strongest case?"]
-        
-        agent_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-        for i, (agent_id, message) in enumerate(sorted(agent_args.items())):
-            letter = agent_letters[i] if i < len(agent_letters) else f"Agent{i}"
-            prompt_parts.append(f"\n{letter} (Agent {agent_id}): {message}")
-        
-        prompt_parts.append(f"\nWhich agent ({'/'.join(agent_letters[:len(agent_args)])}) made the strongest case? Provide your answer as a single letter followed by a brief justification.")
-        
-        full_prompt = "".join(prompt_parts)
+        prompt = JUDGE_SYSTEM_PROMPT.format(transcript=formatted_transcript)
         
         try:
-            response = ollama_query_ABCD(
+            response = ollama_query(
                 ollama_model=self.model,
-                prompt=full_prompt,
+                prompt_to_LLM=prompt,
                 temperature=self.temp,
                 seed=self.seed,
                 num_ctx=DEFAULT_NUM_CTX,
@@ -128,44 +120,24 @@ class JudgeAgent:
                 repeat_penalty=DEFAULT_REPEAT_PENALTY
             )
             
-            # Extract answer from structured response
-            answer = response['message']['content']
+            # Parse the winner and justification from the response
+            winner_match = re.search(r"Winner: Agent (\w+)", response, re.IGNORECASE)
+            justification_match = re.search(r"Justification: (.*)", response, re.DOTALL | re.IGNORECASE)
             
-            # Try to parse JSON response
-            try:
-                parsed = json.loads(answer)
-                winner_letter = parsed.get('answer', 'Unknown')
-            except json.JSONDecodeError:
-                # Fallback: extract first letter
-                winner_letter = answer.strip()[0] if answer.strip() else 'A'
+            winner_id = "Unknown"
+            justification = "Could not parse justification from response."
+
+            if winner_match:
+                winner_id = winner_match.group(1).strip()
             
-            return winner_letter, answer
-            
+            if justification_match:
+                justification = justification_match.group(1).strip()
+            else:
+                 justification = response # Return the full response if parsing fails
+
+            return winner_id, justification
+
         except Exception as e:
-            print(f"Error in judge decision: {e}")
-            # Retry once
-            try:
-                response = ollama_query_ABCD(
-                    ollama_model=self.model,
-                    prompt=full_prompt,
-                    temperature=self.temp,
-                    seed=self.seed + 1,
-                    num_ctx=DEFAULT_NUM_CTX,
-                    top_k=DEFAULT_TOP_K,
-                    top_p=DEFAULT_TOP_P,
-                    min_p=DEFAULT_MIN_P,
-                    repeat_penalty=DEFAULT_REPEAT_PENALTY
-                )
-                
-                answer = response['message']['content']
-                try:
-                    parsed = json.loads(answer)
-                    winner_letter = parsed.get('answer', 'Unknown')
-                except json.JSONDecodeError:
-                    winner_letter = answer.strip()[0] if answer.strip() else 'A'
-                
-                return winner_letter, answer
-                
-            except Exception as e2:
-                print(f"Judge retry failed: {e2}")
-                return 'A', "Judge encountered an error and defaulted to Agent A." 
+            print(f"Error in judge agent response: {e}")
+            return "Error", f"An exception occurred while judging: {e}"
+         

@@ -1,0 +1,33 @@
+{
+    "debate_config": {
+        "topic_key": "social_media",
+        "num_agents": 2,
+        "rounds": 3,
+        "agent_models": [
+            "phi4:latest",
+            "mistral:latest"
+        ],
+        "judge_model": "mistral:latest",
+        "stances": [
+            "For",
+            "Against"
+        ],
+        "temp": 0.7,
+        "seed": 42
+    },
+    "topic_question": "Do social media platforms do more harm than good for society?",
+    "timing": {
+        "start_time": "2025-06-10T09:07:29.426889",
+        "end_time": "2025-06-10T09:09:20.412379",
+        "duration_seconds": 110.99
+    },
+    "results": {
+        "winner": "0",
+        "justification": "Agent 0 presented a more convincing argument by providing clearer and more extensive evidence to support their claims about the detrimental effects of social media platforms on society. They addressed the mental health concerns, privacy issues, and political discourse in greater depth, offering compelling arguments that were not adequately countered by Agent 1. Furthermore, Agent 0 demonstrated a better understanding of the underlying design flaws within these platforms and proposed more concrete solutions for structural reforms. While Agent 1 offered some valuable insights, their arguments tended to be more general and lacked the same level of specificity and detail as those presented by Agent 0.",
+        "transcript_file": "transcript.jsonl"
+    },
+    "system_info": {
+        "platform": "Linux-5.14.0-503.35.1.el9_5.x86_64-x86_64-with-glibc2.34",
+        "python_version": "3.9.21"
+    }
+}

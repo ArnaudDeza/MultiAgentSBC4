@@ -1,169 +1,82 @@
 # Multi-Agent Debate System
 
-A Python framework for running multi-agent debates using local LLMs via Ollama. Agents engage in structured debates on topics, with a judge determining the winner based on argument quality.
+Welcome to the Multi-Agent Debate System! This project is a fun, hands-on introduction to the world of agentic AI, designed for the GenAI summer boot camp. Here, you'll get to orchestrate a debate between multiple Large Language Model (LLM) agents on various fun and thought-provoking topics.
 
-## Features
+## 🚀 Educational Goals
 
-- **Multi-agent debates**: Run debates with 2-8 agents using different LLM models
-- **Structured rounds**: Opening statements followed by multiple debate rounds
-- **Automated judging**: AI judge evaluates arguments and picks winners
-- **JSONL logging**: Complete debate transcripts saved for analysis
-- **Configurable parameters**: Customize models, temperature, rounds, and more
-- **Error handling**: Graceful handling of model failures with retry logic
+This project is designed to give you practical experience with several key concepts in AI:
 
-## Installation
+-   **Agentic AI**: You'll see how we can give AI agents specific roles (Debate Agent, Judge) and goals, and have them interact to complete a complex task.
+-   **Prompt Engineering**: The quality of an LLM's response depends heavily on the quality of its prompt. You'll learn how to craft effective prompts to guide the agents' behavior. You can even modify the prompts in `DebateAgent/prompts.py` to see how it changes the debate!
+-   **LLM Interaction**: You'll use the `ollama` library to have your Python code communicate with powerful local LLMs.
+-   **Parsing LLM Output**: LLMs produce unstructured text. We'll use simple but effective techniques (like regular expressions) to parse the judge's final verdict and extract structured data from it.
 
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+---
 
-2. Ensure Ollama is running and has the required models:
-```bash
-ollama pull phi4
-ollama pull gemma3:12b  # optional alternative model
-```
+## 📂 Codebase Overview
 
-## Usage
+The project is structured to be as clear as possible. Here are the main files you'll interact with:
 
-### Basic Usage
+-   `DebateAgent/orchestrator.py`: This is the heart of the project. It's the main script you'll run to start and manage the debate. It handles getting your settings, running the debate rounds, and saving the results.
+-   `DebateAgent/agents.py`: This file defines the `DebateAgent` and `JudgeAgent` classes. It contains the logic for how an agent responds to a prompt and how the judge decides the winner.
+-   `DebateAgent/prompts.py`: All the prompts for the agents and the judge are stored here as string templates. This is the best place to start if you want to experiment with changing the agents' behavior!
+-   `DebateAgent/topics.py`: This file contains the list of pre-defined debate topics. Feel free to add your own!
+-   `DebateAgent/ollama_utils.py`: A small helper file that contains the function for sending a prompt to an Ollama model and getting a response.
+-   `DebateAgent/produce_debate_audio.py`: A utility script to turn a finished debate transcript into an MP3 audio file.
 
-Run a default debate with 3 agents, 5 rounds, using phi4:
-```bash
-python orchestrator.py
-```
+---
 
-### Using Predefined Topics
+## ⚙️ How to Use
 
-```bash
-# Use a predefined topic by key
-python orchestrator.py --topic pineapple_pizza --num_agents 3 --rounds 2
+Follow these steps to set up and run your first AI debate.
 
-# See all available topics
-python orchestrator.py --list-topics
+### 1. Prerequisites
 
-# See just the topic keys
-python orchestrator.py --list-keys
-```
+-   **Ollama**: Make sure you have [Ollama](https://ollama.com/) installed and running.
+-   **LLM Models**: You need at least one model installed in Ollama. We recommend starting with a smaller, faster model. You can install one by running:
+    ```bash
+    ollama pull phi3
+    ```
+-   **Python Libraries**: You'll need the `gTTS` library to generate the audio file. Install it using pip:
+    ```bash
+    pip install gTTS
+    ```
 
-### Using Custom Topics
+### 2. Running a Debate
+
+To start a debate, run the `orchestrator.py` script from your terminal:
 
 ```bash
-# Use any custom debate question
-python orchestrator.py \
-  --topic "Should AI replace human teachers in schools?" \
-  --num_agents 4 \
-  --rounds 3 \
-  --model phi4 \
-  --temp 0.8 \
-  --seed 123
+python DebateAgent/orchestrator.py
 ```
 
-### Audio Generation
+The script will guide you through an interactive setup process:
 
-Generate audio transcripts using text-to-speech:
+1.  **Choose a Topic**: You'll be shown a list of topics and asked to choose one.
+2.  **Set Number of Agents**: Decide how many agents will participate (minimum of 2).
+3.  **Set Number of Rounds**: Choose how many rounds the debate will last.
+4.  **Configure Agents**: For each agent, you will specify:
+    -   The **Ollama model** they should use.
+    -   Their **stance** on the topic (e.g., "For", "Against", "Skeptical").
+5.  **Configure Judge**: Choose the Ollama model for the judge.
+
+Once configured, the debate will start, and you'll see the agents' responses printed to the console in real-time.
+
+### 3. Viewing the Results
+
+After the debate concludes, a new folder is created in the `DebateAgent/results` directory. The folder name will be timestamped and contain details about the debate. Inside, you'll find two files:
+
+-   `transcript.jsonl`: A JSONL file where every line is a JSON object representing an event in the debate (a message from an agent, the final verdict, etc.).
+-   `metadata.json`: A single JSON file containing all the configuration details of the debate, timing information, and the final results.
+
+### 4. Generating the Audio File
+
+Want to listen to your debate? Use the `produce_debate_audio.py` script. Run it from the terminal and provide the path to the results folder you want to narrate.
+
+**Example:**
 
 ```bash
-# Generate debate with audio
-python orchestrator.py --topic pineapple_pizza --audio
-
-# Convert existing debates to audio
-python convert_to_audio.py
-
-# Test audio system
-python demo_audio.py
+python DebateAgent/produce_debate_audio.py DebateAgent/results/your_debate_results_folder_name
 ```
 
-### Available Options
-
-- `--topic`: Debate topic key or custom question (default: ai_education)
-- `--num_agents`: Number of debate agents (default: 3)
-- `--rounds`: Number of debate rounds (default: 5)
-- `--model`: Ollama model to use (default: phi4)
-- `--temp`: Generation temperature 0.0-1.0 (default: 0.7)
-- `--seed`: Random seed for reproducibility (default: 42)
-- `--output`: Output location (default: auto-generated timestamped folder)
-- `--audio`: Generate audio transcript using text-to-speech
-- `--list-topics`: Show all available predefined topics
-- `--list-keys`: Show just the topic keys
-
-## Log Format
-
-The system outputs JSONL logs with the following record types:
-
-**Debate Start:**
-```json
-{
-  "timestamp": "2024-01-15T10:30:00.000000",
-  "event": "debate_start",
-  "topic": "The benefits and drawbacks of AI in education",
-  "num_agents": 3,
-  "rounds": 5,
-  "model": "phi4",
-  "temperature": 0.7,
-  "seed": 42
-}
-```
-
-**Agent Messages:**
-```json
-{
-  "timestamp": "2024-01-15T10:30:15.000000",
-  "round": 1,
-  "agent": 0,
-  "message": "I believe AI can revolutionize education by...",
-  "type": "opening_statement"
-}
-```
-
-**Final Verdict:**
-```json
-{
-  "timestamp": "2024-01-15T10:35:00.000000",
-  "event": "verdict",
-  "winner": "B",
-  "justification": "Agent B provided the most compelling arguments..."
-}
-```
-
-## Project Structure
-
-```
-multi_agent_debate/
-├── agents.py          # DebateAgent & JudgeAgent classes
-├── orchestrator.py    # Main debate loop / CLI entrypoint
-├── config.py          # Model nicknames & hyperparameters
-├── utils.py           # JSON-logger, timestamp helper
-├── ollama_utils.py    # Ollama API wrapper functions
-├── requirements.txt   # Dependencies
-└── README.md          # This file
-```
-
-## How It Works
-
-1. **Initialization**: Creates N debate agents with unique seeds
-2. **Opening Statements**: Each agent presents their initial position
-3. **Debate Rounds**: Agents respond to each other's arguments iteratively
-4. **Judging**: A judge agent evaluates all arguments and declares a winner
-5. **Logging**: All interactions are logged to JSONL for analysis
-
-## Customization
-
-- **Models**: Edit `config.py` to add new Ollama models
-- **Prompts**: Modify agent prompts in `agents.py` and `orchestrator.py`
-- **Judging**: Customize the judging logic in `JudgeAgent.pick_winner()`
-- **Logging**: Extend `JsonLogger` in `utils.py` for additional formats
-
-## Troubleshooting
-
-**Model not found error:**
-- Ensure the model is installed: `ollama pull <model_name>`
-- Check available models: `ollama list`
-
-**Connection errors:**
-- Verify Ollama is running: `ollama serve`
-- Check Ollama is accessible on default port 11434
-
-**Memory issues:**
-- Use smaller models (e.g., `phi4-mini` instead of `phi4`)
-- Reduce `num_ctx` parameter in `config.py` 
+This will create a `debate_audio.mp3` file inside that same results folder. Enjoy the show! 

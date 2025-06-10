@@ -1,0 +1,33 @@
+{
+    "debate_config": {
+        "topic_key": "pineapple_pizza",
+        "num_agents": 2,
+        "rounds": 2,
+        "agent_models": [
+            "phi4:latest",
+            "mistral:latest"
+        ],
+        "judge_model": "mistral:latest",
+        "stances": [
+            "For",
+            "Against"
+        ],
+        "temp": 0.7,
+        "seed": 42
+    },
+    "topic_question": "Should pineapple be an acceptable pizza topping?",
+    "timing": {
+        "start_time": "2025-06-10T09:20:58.261578",
+        "end_time": "2025-06-10T09:22:23.431804",
+        "duration_seconds": 85.17
+    },
+    "results": {
+        "winner": "0",
+        "justification": "Agent 0's arguments emphasize a more open and inclusive approach towards culinary traditions, recognizing the importance of incorporating diverse influences while respecting original flavor profiles. They effectively address Agent 1's concerns by explaining how pineapple on pizza enhances taste complexity without overshadowing other toppings, and how it reflects the dynamic nature of cuisine. In contrast, Agent 1's arguments primarily focus on maintaining traditional flavors, disregarding the evolutionary aspects of culinary practices and the potential for innovation that pineapple on pizza presents. Therefore, based on their persuasive and consistent reasoning, Agent 0 emerges as the winner in this debate.",
+        "transcript_file": "transcript.jsonl"
+    },
+    "system_info": {
+        "platform": "Linux-5.14.0-503.35.1.el9_5.x86_64-x86_64-with-glibc2.34",
+        "python_version": "3.9.21"
+    }
+}
