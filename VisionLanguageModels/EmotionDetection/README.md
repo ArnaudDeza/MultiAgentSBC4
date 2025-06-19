@@ -83,13 +83,15 @@ If you are running this application on a remote server or HPC cluster and want t
     ```bash
     # Command format: ssh -L <local_port>:<remote_hostname>:<remote_port> <your_ssh_login>
     ssh -L 8501:YOUR_REMOTE_HOSTNAME:8501 adeza3@login-phoenix.pace.gatech.edu
+    ssh -L 8502:atl1-1-03-007-31-0.pace.gatech.edu:8502 adeza3@login-phoenix.pace.gatech.edu
+    ssh -L 8501:atl1-1-01-010-33-0.pace.gatech.edu:8501 adeza3@login-phoenix.pace.gatech.edu
     ```
     This new SSH session may ask for your password or other credentials. Keep it running.
 
 4.  **Access the app in your local browser.**
     Once the SSH tunnel is active, open your web browser on your local machine and navigate to:
     ```
-    http://localhost:8501
+    http://localhost:8502
     ```
     You should now see the Streamlit application interface.
 
